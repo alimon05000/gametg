@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра Тап</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Amiri', serif;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Islamic_mosaic.png/800px-Islamic_mosaic.png') no-repeat center center/cover;
+        }
+
+        #game-container {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 40px;
+            width: 400px;
+            height: 550px;
+            text-align: center;
+            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            position: relative;
+        }
+
+        h1 {
+            color: #00d2ff;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            text-shadow: 0px 0px 15px rgba(0, 210, 255, 0.8);
+        }
+
+        h2 {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        #score {
+            font-size: 2rem;
+            color: #00ffcc;
+            font-weight: bold;
+            margin-top: 15px;
+            text-shadow: 0px 0px 10px rgba(0, 255, 204, 0.8);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff0080, #ffbf00);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            margin-top: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0px 10px 20px rgba(255, 0, 128, 0.7);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 15px 25px rgba(255, 0, 128, 1);
+        }
+
+        #reset-btn {
+            background: linear-gradient(45deg, #00f260, #0575e6);
+        }
+
+        #reset-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 20px 30px rgba(0, 242, 96, 1);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Игра Тап</h1>
+        <h2>Прочитай: "Хвала Аллаху"</h2>
+        <p>Очки: <span id="score">0</span></p>
+        <button id="tap-btn" class="btn">Нажми здесь!</button>
+        <button id="reset-btn" class="btn">Сбросить</button>
+    </div>
+
+    <script>
+        let score = 0;
+        const scoreDisplay = document.getElementById('score');
+        const tapBtn = document.getElementById('tap-btn');
+        const resetBtn = document.getElementById('reset-btn');
+
+        gsap.from("#game-container", {duration: 1, scale: 0, ease: "elastic"});
+
+        tapBtn.addEventListener('click', () => {
+            score++;
+            scoreDisplay.textContent = score;
+            gsap.to("#score", {duration: 0.3, scale: 1.5, yoyo: true, repeat: 1});
+        });
+
+        resetBtn.addEventListener('click', () => {
+            score = 0;
+            scoreDisplay.textContent = score;
+        });
+    </script>
+</body>
+</html>
