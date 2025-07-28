@@ -6,8 +6,10 @@
     <meta name="theme-color" content="#0d5e3f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Намаз">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-startup-image" href="icons/startup.png">
     <title>Точные времена намаза</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@700&display=swap');
@@ -478,16 +480,20 @@
     <script>
         // Текущие времена намаза
         let prayerTimes = null;
+        let deferredPrompt = null;
         
-        // Исправленный API-запрос с правильными параметрами
+        // Определяем iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        
+        // Исправленный метод получения времен намаза
         async function getPrayerTimes(cityId) {
             const cities = {
                 "moscow": { lat: 55.7558, lng: 37.6176, method: 3 },
                 "saint-petersburg": { lat: 59.9343, lng: 30.3351, method: 3 },
                 "kazan": { lat: 55.7961, lng: 49.1064, method: 3 },
                 "ufa": { lat: 54.7351, lng: 55.9587, method: 3 },
-                "makhachkala": { lat: 42.9831, lng: 47.5047, method: 1 }, // Используем метод 1 для Кавказа
-                "grozny": { lat: 43.3180, lng: 45.6982, method: 1 },     // Используем метод 1 для Кавказа
+                "makhachkala": { lat: 42.9831, lng: 47.5047, method: 1 },
+                "grozny": { lat: 43.3180, lng: 45.6982, method: 1 },
                 "novosibirsk": { lat: 55.0084, lng: 82.9357, method: 3 },
                 "krasnoyarsk": { lat: 56.0153, lng: 92.8932, method: 3 }
             };
@@ -518,9 +524,8 @@
             } catch (error) {
                 console.error("Ошибка получения данных:", error);
                 alert("Не удалось получить времена намаза. Пожалуйста, попробуйте позже.");
+                return null;
             }
-            
-            return null;
         }
 
         // Обновляем отображение времен намаза
@@ -590,8 +595,8 @@
 
         // Уведомления
         function setupNotifications() {
-            if (!("Notification" in window)) {
-                alert("Ваш браузер не поддерживает уведомления");
+            if (isIOS || !("Notification" in window)) {
+                document.getElementById('notify-text').textContent = "На iOS используйте 'Добавить на экран дома'";
                 return;
             }
             
@@ -609,61 +614,57 @@
             if (!prayerTimes) return;
             
             // Здесь можно реализовать логику уведомлений
-            // Например, используя Service Worker
             console.log("Уведомления будут показаны для:", prayerTimes);
         }
 
-        // PWA-функционал
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'block';
-        });
-        
-        installBtn.addEventListener('click', () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('Пользователь установил приложение');
+        // Настройка PWA
+        function setupPWA() {
+            const installBtn = document.getElementById('installBtn');
+            
+            if (isIOS) {
+                installBtn.textContent = "Добавить на экран дома";
+                installBtn.addEventListener('click', () => {
+                    alert("1. Нажмите кнопку 'Поделиться'\n2. Выберите 'На экран дома'\n3. Подтвердите добавление");
+                });
+            } else {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    installBtn.style.display = 'block';
+                });
+                
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        if (outcome === 'accepted') {
+                            console.log('Пользователь установил приложение');
+                        }
+                        deferredPrompt = null;
+                        installBtn.style.display = 'none';
                     }
-                    deferredPrompt = null;
-                    installBtn.style.display = 'none';
                 });
             }
-        });
-
-        // Регистрация Service Worker для уведомлений
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(registration => {
-                    console.log('ServiceWorker зарегистрирован');
-                }).catch(err => {
-                    console.log('Ошибка регистрации ServiceWorker:', err);
-                });
-            });
-        }
-
-        // Инициализация
-        document.getElementById('city-select').addEventListener('change', (e) => {
-            updatePrayerTimes(e.target.value);
-        });
-
-        document.getElementById('notify-btn').addEventListener('click', setupNotifications);
-
-        // Автозагрузка для Москвы при открытии
-        window.addEventListener('load', () => {
-            const select = document.getElementById('city-select');
-            select.value = "moscow";
-            updatePrayerTimes("moscow");
             
-            // Скрываем кнопку установки, если PWA уже установлен
+            // Скрываем кнопку, если приложение уже установлено
             if (window.matchMedia('(display-mode: standalone)').matches) {
                 installBtn.style.display = 'none';
             }
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            setupPWA();
+            
+            document.getElementById('city-select').addEventListener('change', (e) => {
+                updatePrayerTimes(e.target.value);
+            });
+
+            document.getElementById('notify-btn').addEventListener('click', setupNotifications);
+
+            // Автозагрузка для Москвы при открытии
+            document.getElementById('city-select').value = "moscow";
+            updatePrayerTimes("moscow");
         });
     </script>
 </body>
