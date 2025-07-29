@@ -1084,19 +1084,22 @@
             drag(event);
         }
 
-        function dragEnd() {
-            isDragging = false;
-            azkarSwitcher.classList.remove('dragging');
-            
-            const movedBy = currentTranslate - prevTranslate;
-            if (movedBy < -sliderWidth/3 && currentIndex < 2) {
-                currentIndex += 1;
-            } else if (movedBy > sliderWidth/3 && currentIndex > 0) {
-                currentIndex -= 1;
-            }
-            
-            setPositionByIndex();
-        }
+        // В функции dragEnd измените условие для определения направления движения
+function dragEnd() {
+    isDragging = false;
+    azkarSwitcher.classList.remove('dragging');
+    
+    const movedBy = currentTranslate - prevTranslate;
+    
+    // ИЗМЕНЕНИЕ НАПРАВЛЕНИЯ: было < -sliderWidth/3, стало > sliderWidth/3 и наоборот
+    if (movedBy > sliderWidth/3 && currentIndex > 0) {
+        currentIndex -= 1;
+    } else if (movedBy < -sliderWidth/3 && currentIndex < 2) {
+        currentIndex += 1;
+    }
+    
+    setPositionByIndex();
+}
 
         function animation() {
             if (isDragging) {
@@ -1106,24 +1109,23 @@
         }
 
         function setSliderPosition() {
-            // Ограничиваем перемещение
-            if (currentTranslate > 0) currentTranslate = 0;
-            if (currentTranslate < -sliderWidth * 2) currentTranslate = -sliderWidth * 2;
-            
-            azkarSlider.style.transform = `translateX(${currentTranslate}px)`;
-        }
+    // Ограничиваем перемещение (инвертировали знаки)
+    if (currentTranslate < 0) currentTranslate = 0;
+    if (currentTranslate > sliderWidth * 2) currentTranslate = sliderWidth * 2;
+    
+    azkarSlider.style.transform = `translateX(${currentTranslate}px)`;
+}
 
         function setPositionByIndex() {
-            currentTranslate = currentIndex * -sliderWidth;
-            prevTranslate = currentTranslate;
-            
-            // Плавное возвращение на место
-            azkarSlider.style.transition = 'transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)';
-            azkarSlider.style.transform = `translateX(${currentTranslate}px)`;
-            
-            // Обновляем активную вкладку
-            updateActiveTab();
-        }
+    // Для движения вправо используем положительные значения
+    currentTranslate = currentIndex * sliderWidth; // Убрали минус
+    prevTranslate = currentTranslate;
+    
+    azkarSlider.style.transition = 'transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)';
+    azkarSlider.style.transform = `translateX(${currentTranslate}px)`;
+    
+    updateActiveTab();
+}
 
         function updateActiveTab() {
             azkarOptions.forEach((option, index) => {
