@@ -866,6 +866,14 @@
         <button class="install-btn" id="install-btn">Установить приложение</button>
     </div>
 
+    <!-- Аудио для уведомлений (скрыто) -->
+    <audio id="fajr-adhan" preload="auto">
+        <source src="https://www.islamcan.com/audio/adhan/fajr.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="adhan" preload="auto">
+        <source src="https://www.islamcan.com/audio/adhan/standard.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
         // Создаем жидкие элементы для фона
         const liquidBg = document.getElementById('liquid-bg');
@@ -1011,7 +1019,9 @@
             document.getElementById('isha-time').textContent = times.isha;
 
             updateCurrentPrayer();
-            setupPrayerNotifications(city);
+            if (Notification.permission === 'granted') {
+                setupPrayerNotifications(city);
+            }
         }
 
         // Определение текущего намаза
@@ -1178,46 +1188,36 @@
         // PWA функционал
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                const swUrl = URL.createObjectURL(new Blob([
-                    `const CACHE_NAME = 'namaz-v1';
-                    const ASSETS = [
-                        '/',
-                        '/index.html',
-                        '/styles.css',
-                        '/script.js',
-                        'https://img.icons8.com/ios/256/islamic/prayer.png',
-                        'https://img.icons8.com/ios/512/islamic/prayer.png'
-                    ];
-
-                    self.addEventListener('install', (e) => {
-                        e.waitUntil(
-                            caches.open(CACHE_NAME)
-                                .then(cache => cache.addAll(ASSETS))
-                        );
-                    });
-
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(
-                            caches.match(e.request)
-                                .then(response => response || fetch(e.request))
-                        );
-                    });`
-                ], { type: 'application/javascript' }));
-
-                navigator.serviceWorker.register(swUrl)
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW registration failed', err));
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => {
+                        console.log('ServiceWorker registration successful');
+                        // Проверяем, поддерживает ли браузер PWA установку
+                        checkPWAInstallable();
+                    })
+                    .catch(err => console.log('ServiceWorker registration failed: ', err));
             });
         }
 
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'block';
-        });
+        function checkPWAInstallable() {
+            // Показываем кнопку установки только на поддерживаемых платформах
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                // Уже установлено
+                installBtn.style.display = 'none';
+            } else if (isIOS()) {
+                // iOS не поддерживает PWA установку через beforeinstallprompt
+                installBtn.style.display = 'none';
+            } else {
+                // Проверяем, может ли браузер установить PWA
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    installBtn.style.display = 'block';
+                });
+            }
+        }
 
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
@@ -1234,12 +1234,10 @@
             installBtn.style.display = 'none';
         });
 
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            installBtn.style.display = 'none';
-        }
-
-        // Уведомления (исправлено для iOS)
+        // Уведомления с азаном
         const notifyBtn = document.getElementById('notify-btn');
+        const fajrAdhan = document.getElementById('fajr-adhan');
+        const standardAdhan = document.getElementById('adhan');
         
         function isIOS() {
             return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
@@ -1247,7 +1245,7 @@
         }
         
         function showIOSNotificationAlert() {
-            alert('Для включения уведомлений на iOS:\n1. Добавьте это приложение на главный экран\n2. Откройте его как standalone-приложение\n3. Затем попробуйте включить уведомления снова');
+            alert('Для работы уведомлений на iOS:\n1. Добавьте это приложение на главный экран\n2. Откройте его как standalone-приложение\n3. Включите уведомления в настройках Safari\n4. Нажмите "Уведомлять о намазе" снова');
         }
         
         async function setupPrayerNotifications(city) {
@@ -1277,6 +1275,8 @@
             const currentTime = now.getHours() * 60 + now.getMinutes();
             
             for (const [prayer, time] of Object.entries(times)) {
+                if (prayer === 'sunrise') continue; // Пропускаем восход
+                
                 const [hours, minutes] = time.split(':').map(Number);
                 const prayerTime = hours * 60 + minutes;
                 let diff = prayerTime - currentTime;
@@ -1306,18 +1306,32 @@
             };
             
             if (Notification.permission === 'granted') {
+                // Воспроизводим соответствующий азан
+                if (prayer === 'fajr') {
+                    fajrAdhan.play().catch(e => console.log('Не удалось воспроизвести азан фаджр:', e));
+                } else {
+                    standardAdhan.play().catch(e => console.log('Не удалось воспроизвести стандартный азан:', e));
+                }
+                
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistration().then(reg => {
                         if (reg) {
                             reg.showNotification('Время намаза', {
                                 body: `Скоро время намаза ${prayerNames[prayer]}`,
                                 icon: 'https://img.icons8.com/ios/512/islamic/prayer.png',
-                                vibrate: [200, 100, 200],
+                                vibrate: [200, 100, 200, 100, 200],
                                 tag: 'prayer-notification'
+                            });
+                        } else {
+                            // Fallback для браузеров без service worker
+                            new Notification('Время намаза', {
+                                body: `Скоро время намаза ${prayerNames[prayer]}`,
+                                icon: 'https://img.icons8.com/ios/512/islamic/prayer.png'
                             });
                         }
                     });
                 } else {
+                    // Fallback для браузеров без service worker
                     new Notification('Время намаза', {
                         body: `Скоро время намаза ${prayerNames[prayer]}`,
                         icon: 'https://img.icons8.com/ios/512/islamic/prayer.png'
@@ -1327,8 +1341,23 @@
         }
         
         notifyBtn.addEventListener('click', async () => {
-            if (isIOS() && window.navigator.standalone !== true) {
-                showIOSNotificationAlert();
+            if (isIOS()) {
+                // Для iOS показываем специальные инструкции
+                if (window.navigator.standalone) {
+                    // В standalone режиме запрашиваем разрешение
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        const city = document.getElementById('city-select').value;
+                        if (city) {
+                            await schedulePrayerNotifications(city);
+                            alert('Уведомления включены! Вы будете получать напоминания о намазе с азаном.');
+                        } else {
+                            alert('Пожалуйста, сначала выберите город');
+                        }
+                    }
+                } else {
+                    showIOSNotificationAlert();
+                }
                 return;
             }
             
@@ -1336,7 +1365,7 @@
                 const city = document.getElementById('city-select').value;
                 if (city) {
                     await schedulePrayerNotifications(city);
-                    alert('Уведомления о намазе включены!');
+                    alert('Уведомления о намазе включены! Вы будете получать напоминания с азаном.');
                 } else {
                     alert('Пожалуйста, сначала выберите город');
                 }
@@ -1346,7 +1375,7 @@
                     const city = document.getElementById('city-select').value;
                     if (city) {
                         await schedulePrayerNotifications(city);
-                        alert('Уведомления включены! Вы будете получать напоминания о намазе.');
+                        alert('Уведомления включены! Вы будете получать напоминания о намазе с азаном.');
                     } else {
                         alert('Пожалуйста, сначала выберите город');
                     }
