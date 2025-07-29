@@ -483,7 +483,8 @@
         let deferredPrompt = null;
         
         // Определяем iOS
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         
         // Исправленный метод получения времен намаза
         async function getPrayerTimes(cityId) {
@@ -536,14 +537,14 @@
             prayerTimes = timings;
             
             document.getElementById('prayer-times').querySelectorAll('.prayer-card').forEach(card => {
-                const prayerName = card.querySelector('.prayer-name').textContent.toLowerCase();
+                const prayerName = card.querySelector('.prayer-name').textContent.trim().toLowerCase();
                 
                 if (prayerName.includes('фаджр')) card.querySelector('.prayer-time').textContent = formatTime(timings.Fajr);
-                if (prayerName.includes('восход')) card.querySelector('.prayer-time').textContent = formatTime(timings.Sunrise);
-                if (prayerName.includes('зухр')) card.querySelector('.prayer-time').textContent = formatTime(timings.Dhuhr);
-                if (prayerName.includes('аср')) card.querySelector('.prayer-time').textContent = formatTime(timings.Asr);
-                if (prayerName.includes('магриб')) card.querySelector('.prayer-time').textContent = formatTime(timings.Maghrib);
-                if (prayerName.includes('иша')) card.querySelector('.prayer-time').textContent = formatTime(timings.Isha);
+                else if (prayerName.includes('восход')) card.querySelector('.prayer-time').textContent = formatTime(timings.Sunrise);
+                else if (prayerName.includes('зухр')) card.querySelector('.prayer-time').textContent = formatTime(timings.Dhuhr);
+                else if (prayerName.includes('аср')) card.querySelector('.prayer-time').textContent = formatTime(timings.Asr);
+                else if (prayerName.includes('магриб')) card.querySelector('.prayer-time').textContent = formatTime(timings.Maghrib);
+                else if (prayerName.includes('иша')) card.querySelector('.prayer-time').textContent = formatTime(timings.Isha);
             });
             
             checkCurrentPrayer();
@@ -551,6 +552,7 @@
 
         // Форматируем время (удаляем часовой пояс)
         function formatTime(timeStr) {
+            if (!timeStr) return "--:--";
             return timeStr.split(' ')[0];
         }
 
@@ -589,6 +591,7 @@
         }
 
         function convertToMinutes(timeStr) {
+            if (!timeStr) return 0;
             const [hours, minutes] = timeStr.split(' ')[0].split(':').map(Number);
             return hours * 60 + minutes;
         }
@@ -624,8 +627,15 @@
             if (isIOS) {
                 installBtn.textContent = "Добавить на экран дома";
                 installBtn.addEventListener('click', () => {
-                    alert("1. Нажмите кнопку 'Поделиться'\n2. Выберите 'На экран дома'\n3. Подтвердите добавление");
+                    alert("Чтобы добавить приложение на главный экран:\n1. Нажмите кнопку 'Поделиться'\n2. Выберите 'На экран дома'\n3. Подтвердите добавление");
                 });
+                
+                // Исправление для iOS PWA
+                if (window.navigator.standalone) {
+                    // Если открыто как PWA
+                    document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')
+                        .setAttribute('content', 'black-translucent');
+                }
             } else {
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
@@ -657,7 +667,9 @@
             setupPWA();
             
             document.getElementById('city-select').addEventListener('change', (e) => {
-                updatePrayerTimes(e.target.value);
+                if (e.target.value) {
+                    updatePrayerTimes(e.target.value);
+                }
             });
 
             document.getElementById('notify-btn').addEventListener('click', setupNotifications);
@@ -665,6 +677,13 @@
             // Автозагрузка для Москвы при открытии
             document.getElementById('city-select').value = "moscow";
             updatePrayerTimes("moscow");
+            
+            // Обновляем времена каждую минуту
+            setInterval(() => {
+                if (document.getElementById('city-select').value) {
+                    checkCurrentPrayer();
+                }
+            }, 60000);
         });
     </script>
 </body>
