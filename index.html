@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0d2e1f">
+    <meta name="theme-color" content="#0a1e15">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Намаз">
@@ -20,13 +20,14 @@
             --primary-color: #0d5e3f;
             --secondary-color: #f0e6d2;
             --gold-color: #c9a769;
-            --text-light: rgba(255, 255, 255, 0.9);
+            --text-light: rgba(255, 255, 255, 0.92);
             --text-dark: #1a1a1a;
             --current-prayer-color: #4CAF50;
-            --glass-bg: rgba(5, 26, 18, 0.4);
-            --glass-border: rgba(201, 167, 105, 0.15);
-            --glass-highlight: rgba(255, 255, 255, 0.08);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --glass-bg: rgba(5, 26, 18, 0.25);
+            --glass-border: rgba(201, 167, 105, 0.2);
+            --glass-highlight: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            --card-bg: rgba(255, 255, 255, 0.08);
         }
         
         * {
@@ -157,7 +158,7 @@
         }
         
         .prayer-card {
-            background: linear-gradient(135deg, rgba(13, 94, 63, 0.2), rgba(5, 26, 18, 0.3));
+            background: var(--card-bg);
             border-radius: 12px;
             padding: 15px;
             border: 1px solid var(--glass-border);
@@ -165,28 +166,36 @@
             box-shadow: var(--glass-shadow);
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             transform: translateZ(0);
+            border: 1px solid rgba(201, 167, 105, 0.15);
         }
         
         .prayer-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
             background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.03) 0%,
-                transparent 50%,
-                rgba(201, 167, 105, 0.03) 100%
+                to bottom right,
+                rgba(255, 255, 255, 0.05),
+                transparent 70%
             );
+            transform: rotate(30deg);
             z-index: -1;
+            animation: cardShine 8s infinite linear;
+        }
+        
+        @keyframes cardShine {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
         }
         
         .prayer-card.current {
-            background: linear-gradient(135deg, rgba(76, 175, 80, 0.25), rgba(13, 94, 63, 0.4));
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(13, 94, 63, 0.3));
             border-color: var(--current-prayer-color);
             box-shadow: 0 0 25px rgba(76, 175, 80, 0.25);
             animation: pulseGlow 3s infinite alternate;
@@ -231,6 +240,7 @@
             border: 1px solid var(--gold-color);
             font-size: 1rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
         }
         
         .next-prayer-name {
@@ -273,12 +283,28 @@
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .notify-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(201, 167, 105, 0.2), transparent);
+            transition: 0.5s;
         }
         
         .notify-btn:hover {
-            background: var(--gold-color);
-            color: var(--text-dark);
+            background: rgba(201, 167, 105, 0.2);
             box-shadow: 0 6px 20px rgba(201, 167, 105, 0.3);
+        }
+        
+        .notify-btn:hover::before {
+            left: 100%;
         }
         
         .install-btn {
@@ -292,10 +318,47 @@
             margin: 10px auto;
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
         }
         
         .install-btn:hover {
             box-shadow: 0 6px 20px rgba(201, 167, 105, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Параллакс эффект для карточек */
+        @media (hover: hover) and (pointer: fine) {
+            .container {
+                transition: transform 0.5s ease;
+            }
+            
+            .prayer-card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .prayer-card:hover {
+                transform: translateY(-5px) scale(1.02);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            }
+            
+            /* Эффект преломления света */
+            .prayer-card::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.03) 0%,
+                    transparent 50%,
+                    rgba(255, 255, 255, 0.03) 100%
+                );
+                border-radius: inherit;
+                pointer-events: none;
+                mix-blend-mode: overlay;
+            }
         }
         
         @media (min-width: 768px) {
@@ -315,26 +378,6 @@
             
             .prayer-time {
                 font-size: 1.8rem;
-            }
-        }
-        
-        /* Параллакс эффект для ПК */
-        @media (hover: hover) and (pointer: fine) {
-            .container {
-                transition: transform 0.5s ease, box-shadow 0.5s ease;
-            }
-            
-            body:hover .container {
-                transform: perspective(1000px) rotateY(1deg) rotateX(0.5deg);
-            }
-            
-            .prayer-card {
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-            
-            .prayer-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
             }
         }
     </style>
@@ -421,9 +464,6 @@
         let deferredPrompt = null;
         let currentCity = null;
         let nextPrayerTimer = null;
-        
-        // Определяем устройство
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         // Получаем времена намаза
         async function getPrayerTimes(cityId) {
@@ -616,6 +656,53 @@
             }
         }
 
+        // Управление уведомлениями
+        function setupNotifications() {
+            const notifyBtn = document.getElementById('notify-btn');
+            const notifyText = document.getElementById('notify-text');
+            
+            // Проверяем поддержку уведомлений
+            if (!('Notification' in window)) {
+                notifyText.textContent = "Уведомления не поддерживаются";
+                notifyBtn.disabled = true;
+                return;
+            }
+            
+            // Проверяем разрешение на уведомления
+            if (Notification.permission === 'granted') {
+                notifyText.textContent = "Уведомления включены";
+            } else if (Notification.permission === 'denied') {
+                notifyText.textContent = "Уведомления отключены";
+                notifyBtn.disabled = true;
+            } else {
+                notifyText.textContent = "Включить уведомления";
+            }
+            
+            // Обработчик клика по кнопке
+            notifyBtn.addEventListener('click', async () => {
+                if (Notification.permission === 'denied') {
+                    alert('Разрешение на уведомления было отклонено. Пожалуйста, разрешите уведомления в настройках браузера.');
+                    return;
+                }
+                
+                const permission = await Notification.requestPermission();
+                
+                if (permission === 'granted') {
+                    notifyText.textContent = "Уведомления включены";
+                    createNotification('Уведомления включены', 'Вы будете получать напоминания о намазах');
+                } else {
+                    notifyText.textContent = "Уведомления отключены";
+                }
+            });
+        }
+        
+        // Создание уведомления
+        function createNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, { body });
+            }
+        }
+        
         // Настройка PWA
         function setupPWA() {
             const installBtn = document.getElementById('installBtn');
@@ -647,6 +734,7 @@
         // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             setupPWA();
+            setupNotifications();
             
             document.getElementById('city-select').addEventListener('change', (e) => {
                 if (e.target.value) {
