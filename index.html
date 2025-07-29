@@ -20,14 +20,21 @@
             --primary-color: #0d5e3f;
             --secondary-color: #f0e6d2;
             --gold-color: #c9a769;
-            --text-light: rgba(255, 255, 255, 0.92);
+            --text-light: rgba(255, 255, 255, 0.95);
             --text-dark: #1a1a1a;
             --current-prayer-color: #4CAF50;
-            --glass-bg: rgba(5, 26, 18, 0.25);
-            --glass-border: rgba(201, 167, 105, 0.2);
-            --glass-highlight: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-            --card-bg: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(5, 26, 18, 0.18);
+            --glass-border: rgba(201, 167, 105, 0.12);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --liquid-shine: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.05) 45%,
+                rgba(255, 255, 255, 0) 55%,
+                rgba(255, 255, 255, 0.03) 100%
+            );
         }
         
         * {
@@ -55,10 +62,28 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 30%, rgba(13, 94, 63, 0.08) 0%, transparent 25%),
-                radial-gradient(circle at 80% 70%, rgba(201, 167, 105, 0.05) 0%, transparent 25%);
+                radial-gradient(circle at 20% 30%, rgba(13, 94, 63, 0.1) 0%, transparent 25%),
+                radial-gradient(circle at 80% 70%, rgba(201, 167, 105, 0.08) 0%, transparent 25%);
             z-index: 0;
             overflow: hidden;
+        }
+        
+        /* Анимированные жидкие элементы фона */
+        .liquid-element {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201, 167, 105, 0.08), transparent 70%);
+            filter: blur(60px);
+            opacity: 0.3;
+            animation: float 15s infinite linear;
+            z-index: -1;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, 30px) scale(1.1); }
+            66% { transform: translate(-30px, 40px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
         }
         
         .container {
@@ -67,9 +92,9 @@
             width: 95%;
             max-width: 850px;
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 20px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 24px;
             padding: 30px;
             text-align: center;
             border: 1px solid var(--glass-border);
@@ -77,8 +102,10 @@
             transform-style: preserve-3d;
             margin: 20px 0;
             overflow: hidden;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
         }
         
+        /* Эффект жидкого стекла для контейнера */
         .container::before {
             content: '';
             position: absolute;
@@ -86,15 +113,15 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(
-                135deg,
-                var(--glass-highlight) 0%,
-                transparent 40%,
-                transparent 60%,
-                var(--glass-highlight) 100%
-            );
+            background: var(--liquid-shine);
             z-index: -1;
             pointer-events: none;
+            animation: shine 8s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) skewX(-15deg); }
+            100% { transform: translateX(100%) skewX(-15deg); }
         }
         
         h1 {
@@ -102,9 +129,10 @@
             font-size: clamp(1.8rem, 4vw, 2.8rem);
             margin-bottom: 20px;
             color: var(--gold-color);
-            text-shadow: 0 2px 10px rgba(201, 167, 105, 0.3);
+            text-shadow: 0 2px 10px rgba(201, 167, 105, 0.2);
             letter-spacing: 1px;
             position: relative;
+            font-weight: 700;
         }
         
         h1::after {
@@ -126,121 +154,194 @@
         .select-wrapper {
             position: relative;
             margin: 20px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            transform: translateZ(0);
         }
         
         select {
             width: 100%;
             padding: 14px 20px;
             font-size: 1rem;
-            background: rgba(13, 94, 63, 0.3);
-            border: 1px solid var(--gold-color);
-            border-radius: 8px;
+            background: rgba(13, 94, 63, 0.25);
+            border: 1px solid rgba(201, 167, 105, 0.25);
+            border-radius: 12px;
             color: var(--text-light);
             cursor: pointer;
             appearance: none;
             outline: none;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             font-family: 'Scheherazade New', serif;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
         }
         
         select:hover {
-            background: rgba(13, 94, 63, 0.4);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: rgba(13, 94, 63, 0.35);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
         
         .prayer-times {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
+            gap: 16px;
             margin: 25px 0;
+            perspective: 1000px;
         }
         
+        /* Стили для карточек с эффектом жидкого стекла */
         .prayer-card {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 16px;
+            padding: 16px;
             border: 1px solid var(--glass-border);
-            transition: all 0.4s ease;
-            box-shadow: var(--glass-shadow);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 
+                0 4px 30px rgba(0, 0, 0, 0.1),
+                inset 0 0 16px rgba(255, 255, 255, 0.05);
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             transform: translateZ(0);
-            border: 1px solid rgba(201, 167, 105, 0.15);
+            z-index: 1;
         }
         
+        /* Эффект жидкого стекла для карточек */
         .prayer-card::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                rgba(255, 255, 255, 0.05),
-                transparent 70%
-            );
-            transform: rotate(30deg);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--liquid-shine);
             z-index: -1;
-            animation: cardShine 8s infinite linear;
+            pointer-events: none;
+            animation: shine 8s infinite;
+            animation-delay: calc(var(--i) * 0.5s);
+            opacity: 0.6;
+            border-radius: inherit;
         }
         
-        @keyframes cardShine {
-            0% { transform: rotate(30deg) translate(-30%, -30%); }
-            100% { transform: rotate(30deg) translate(30%, 30%); }
+        /* Эффект преломления света по краям */
+        .prayer-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid transparent;
+            border-radius: inherit;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0) 20%,
+                rgba(255, 255, 255, 0) 80%,
+                rgba(255, 255, 255, 0.1) 100%
+            );
+            pointer-events: none;
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            padding: 1px;
         }
         
         .prayer-card.current {
-            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(13, 94, 63, 0.3));
-            border-color: var(--current-prayer-color);
-            box-shadow: 0 0 25px rgba(76, 175, 80, 0.25);
+            background: linear-gradient(
+                135deg,
+                rgba(76, 175, 80, 0.2),
+                rgba(13, 94, 63, 0.3)
+            );
+            border-color: rgba(76, 175, 80, 0.3);
+            box-shadow: 
+                0 0 25px rgba(76, 175, 80, 0.25),
+                inset 0 0 16px rgba(76, 175, 80, 0.1);
             animation: pulseGlow 3s infinite alternate;
         }
         
         @keyframes pulseGlow {
-            0% { box-shadow: 0 0 15px rgba(76, 175, 80, 0.25); }
-            100% { box-shadow: 0 0 25px rgba(76, 175, 80, 0.4); }
+            0% { 
+                box-shadow: 
+                    0 0 15px rgba(76, 175, 80, 0.25),
+                    inset 0 0 16px rgba(76, 175, 80, 0.1);
+            }
+            100% { 
+                box-shadow: 
+                    0 0 30px rgba(76, 175, 80, 0.4),
+                    inset 0 0 16px rgba(76, 175, 80, 0.2);
+            }
         }
         
         .prayer-name {
             font-weight: bold;
             font-size: 1.1rem;
             color: var(--gold-color);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
         }
         
         .prayer-time {
             font-size: 1.5rem;
             font-family: 'Amiri', serif;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 2;
         }
         
         .time-remaining {
             font-size: 0.9rem;
             color: var(--gold-color);
-            margin: 5px 0;
+            margin: 6px 0;
             font-family: 'Amiri', serif;
+            position: relative;
+            z-index: 2;
         }
         
         .additional-info {
             font-size: 0.8rem;
             color: var(--secondary-color);
-            opacity: 0.8;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
         }
         
         .next-prayer-info {
             margin: 20px 0;
-            padding: 12px;
-            background: rgba(13, 94, 63, 0.3);
-            border-radius: 8px;
-            border: 1px solid var(--gold-color);
+            padding: 16px;
+            background: rgba(13, 94, 63, 0.25);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
             font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(5px);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .next-prayer-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--liquid-shine);
+            z-index: -1;
+            pointer-events: none;
+            animation: shine 8s infinite;
+            animation-delay: 0.3s;
+            opacity: 0.6;
+            border-radius: inherit;
         }
         
         .next-prayer-name {
@@ -255,6 +356,8 @@
         
         .ayah-container {
             margin: 20px 0;
+            position: relative;
+            z-index: 2;
         }
         
         .ayah {
@@ -262,29 +365,34 @@
             line-height: 1.6;
             color: var(--gold-color);
             font-family: 'Amiri', serif;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         
         .ayah-translation {
             font-size: 1rem;
-            margin-top: 10px;
+            margin-top: 12px;
             color: var(--secondary-color);
-            opacity: 0.8;
+            opacity: 0.9;
         }
         
         .notify-btn {
-            background: transparent;
+            background: rgba(201, 167, 105, 0.15);
             color: var(--gold-color);
-            border: 1px solid var(--gold-color);
-            padding: 12px 30px;
+            border: 1px solid rgba(201, 167, 105, 0.3);
+            padding: 14px 32px;
             font-size: 1rem;
             border-radius: 50px;
             cursor: pointer;
             margin: 20px 0;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(5px);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.15),
+                inset 0 0 12px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
+            font-weight: bold;
+            z-index: 2;
         }
         
         .notify-btn::before {
@@ -294,13 +402,17 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(201, 167, 105, 0.2), transparent);
-            transition: 0.5s;
+            background: var(--liquid-shine);
+            transition: 0.6s;
+            z-index: -1;
         }
         
         .notify-btn:hover {
-            background: rgba(201, 167, 105, 0.2);
-            box-shadow: 0 6px 20px rgba(201, 167, 105, 0.3);
+            background: rgba(201, 167, 105, 0.25);
+            box-shadow: 
+                0 6px 25px rgba(201, 167, 105, 0.2),
+                inset 0 0 16px rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
         }
         
         .notify-btn:hover::before {
@@ -308,68 +420,87 @@
         }
         
         .install-btn {
-            background: var(--gold-color);
+            background: linear-gradient(
+                135deg,
+                rgba(201, 167, 105, 0.8),
+                rgba(201, 167, 105, 0.6)
+            );
             color: var(--text-dark);
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 0.9rem;
             border-radius: 50px;
             cursor: pointer;
             margin: 10px auto;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 
+                0 4px 20px rgba(201, 167, 105, 0.3),
+                inset 0 0 12px rgba(255, 255, 255, 0.2);
             font-weight: bold;
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+        }
+        
+        .install-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--liquid-shine);
+            transition: 0.6s;
+            z-index: -1;
         }
         
         .install-btn:hover {
-            box-shadow: 0 6px 20px rgba(201, 167, 105, 0.3);
+            box-shadow: 
+                0 6px 25px rgba(201, 167, 105, 0.4),
+                inset 0 0 16px rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
         
-        /* Параллакс эффект для карточек */
+        .install-btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Анимации для ПК */
         @media (hover: hover) and (pointer: fine) {
             .container {
-                transition: transform 0.5s ease;
+                transition: transform 0.5s ease, box-shadow 0.5s ease;
+            }
+            
+            body:hover .container {
+                transform: perspective(1000px) rotateY(1deg) rotateX(0.5deg);
+                box-shadow: 
+                    0 12px 40px rgba(0, 0, 0, 0.25),
+                    0 0 0 1px rgba(201, 167, 105, 0.1);
             }
             
             .prayer-card {
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                transition: 
+                    transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+                    box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             }
             
             .prayer-card:hover {
-                transform: translateY(-5px) scale(1.02);
-                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-            }
-            
-            /* Эффект преломления света */
-            .prayer-card::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: linear-gradient(
-                    135deg,
-                    rgba(255, 255, 255, 0.03) 0%,
-                    transparent 50%,
-                    rgba(255, 255, 255, 0.03) 100%
-                );
-                border-radius: inherit;
-                pointer-events: none;
-                mix-blend-mode: overlay;
+                transform: translateY(-6px) scale(1.02);
+                box-shadow: 
+                    0 15px 35px rgba(0, 0, 0, 0.2),
+                    inset 0 0 20px rgba(255, 255, 255, 0.1);
             }
         }
         
         @media (min-width: 768px) {
             .container {
                 padding: 40px;
-                border-radius: 25px;
+                border-radius: 28px;
             }
             
             .prayer-card {
                 padding: 20px;
-                border-radius: 15px;
+                border-radius: 20px;
             }
             
             .prayer-name {
@@ -379,11 +510,16 @@
             .prayer-time {
                 font-size: 1.8rem;
             }
+            
+            .next-prayer-info {
+                padding: 20px;
+                border-radius: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="liquid-bg"></div>
+    <div class="liquid-bg" id="liquid-bg"></div>
     
     <div class="container">
         <h1>Точные времена намаза</h1>
@@ -403,37 +539,37 @@
         </div>
         
         <div class="prayer-times" id="prayer-times">
-            <div class="prayer-card" data-prayer="fajr">
+            <div class="prayer-card" data-prayer="fajr" style="--i:0">
                 <div class="prayer-name">Фаджр</div>
                 <div class="prayer-time">--:--</div>
                 <div class="time-remaining"></div>
                 <div class="additional-info">18° под горизонтом</div>
             </div>
-            <div class="prayer-card" data-prayer="sunrise">
+            <div class="prayer-card" data-prayer="sunrise" style="--i:1">
                 <div class="prayer-name">Восход</div>
                 <div class="prayer-time">--:--</div>
                 <div class="time-remaining"></div>
                 <div class="additional-info">0° под горизонтом</div>
             </div>
-            <div class="prayer-card" data-prayer="dhuhr">
+            <div class="prayer-card" data-prayer="dhuhr" style="--i:2">
                 <div class="prayer-name">Зухр</div>
                 <div class="prayer-time">--:--</div>
                 <div class="time-remaining"></div>
                 <div class="additional-info">После зенита</div>
             </div>
-            <div class="prayer-card" data-prayer="asr">
+            <div class="prayer-card" data-prayer="asr" style="--i:3">
                 <div class="prayer-name">Аср</div>
                 <div class="prayer-time">--:--</div>
                 <div class="time-remaining"></div>
                 <div class="additional-info">Тень = предмету</div>
             </div>
-            <div class="prayer-card" data-prayer="maghrib">
+            <div class="prayer-card" data-prayer="maghrib" style="--i:4">
                 <div class="prayer-name">Магриб</div>
                 <div class="prayer-time">--:--</div>
                 <div class="time-remaining"></div>
                 <div class="additional-info">Солнце скрылось</div>
             </div>
-            <div class="prayer-card" data-prayer="isha">
+            <div class="prayer-card" data-prayer="isha" style="--i:5">
                 <div class="prayer-name">Иша</div>
                 <div class="prayer-time">--:--</div>
                 <div class="time-remaining"></div>
@@ -464,6 +600,32 @@
         let deferredPrompt = null;
         let currentCity = null;
         let nextPrayerTimer = null;
+        
+        // Создаем жидкие элементы фона
+        function createLiquidElements() {
+            const bg = document.getElementById('liquid-bg');
+            bg.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const element = document.createElement('div');
+                element.className = 'liquid-element';
+                
+                const size = Math.random() * 300 + 200;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 10;
+                const duration = 15 + Math.random() * 15;
+                
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.left = `${posX}%`;
+                element.style.top = `${posY}%`;
+                element.style.animationDelay = `${delay}s`;
+                element.style.animationDuration = `${duration}s`;
+                
+                bg.appendChild(element);
+            }
+        }
         
         // Получаем времена намаза
         async function getPrayerTimes(cityId) {
@@ -671,6 +833,7 @@
             // Проверяем разрешение на уведомления
             if (Notification.permission === 'granted') {
                 notifyText.textContent = "Уведомления включены";
+                setupNotificationAlerts();
             } else if (Notification.permission === 'denied') {
                 notifyText.textContent = "Уведомления отключены";
                 notifyBtn.disabled = true;
@@ -690,10 +853,19 @@
                 if (permission === 'granted') {
                     notifyText.textContent = "Уведомления включены";
                     createNotification('Уведомления включены', 'Вы будете получать напоминания о намазах');
+                    setupNotificationAlerts();
                 } else {
                     notifyText.textContent = "Уведомления отключены";
                 }
             });
+        }
+        
+        // Настройка напоминаний о намазах
+        function setupNotificationAlerts() {
+            if (!prayerTimes || Notification.permission !== 'granted') return;
+            
+            // Здесь можно реализовать логику уведомлений о намазах
+            console.log("Уведомления настроены для:", prayerTimes);
         }
         
         // Создание уведомления
@@ -733,6 +905,7 @@
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
+            createLiquidElements();
             setupPWA();
             setupNotifications();
             
