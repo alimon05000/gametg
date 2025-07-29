@@ -68,7 +68,6 @@
             overflow: hidden;
         }
         
-        /* Анимированные жидкие элементы фона */
         .liquid-element {
             position: absolute;
             border-radius: 50%;
@@ -105,7 +104,6 @@
             transition: transform 0.5s ease, box-shadow 0.5s ease;
         }
         
-        /* Эффект жидкого стекла для контейнера */
         .container::before {
             content: '';
             position: absolute;
@@ -191,7 +189,6 @@
             perspective: 1000px;
         }
         
-        /* Стили для карточек с эффектом жидкого стекла */
         .prayer-card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -209,7 +206,6 @@
             z-index: 1;
         }
         
-        /* Эффект жидкого стекла для карточек */
         .prayer-card::before {
             content: '';
             position: absolute;
@@ -226,7 +222,6 @@
             border-radius: inherit;
         }
         
-        /* Эффект преломления света по краям */
         .prayer-card::after {
             content: '';
             position: absolute;
@@ -352,6 +347,159 @@
         .next-prayer-time {
             font-family: 'Amiri', serif;
             font-size: 1.2rem;
+        }
+        
+        /* Стили для переключателя азкаров */
+        .azkar-switcher {
+            position: relative;
+            margin: 30px auto;
+            width: 90%;
+            max-width: 400px;
+            height: 60px;
+            background: rgba(13, 94, 63, 0.2);
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                inset 0 0 20px rgba(0, 0, 0, 0.1),
+                0 4px 30px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5px;
+        }
+        
+        .azkar-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            color: var(--secondary-color);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .azkar-option.active {
+            color: var(--gold-color);
+        }
+        
+        .azkar-slider {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: calc(33.33% - 10px);
+            height: calc(100% - 10px);
+            background: linear-gradient(
+                135deg,
+                rgba(201, 167, 105, 0.3),
+                rgba(201, 167, 105, 0.2)
+            );
+            border-radius: 25px;
+            box-shadow: 
+                0 4px 20px rgba(201, 167, 105, 0.2),
+                inset 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1;
+            backdrop-filter: blur(5px);
+            overflow: hidden;
+        }
+        
+        .azkar-slider::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--liquid-shine);
+            animation: shine 8s infinite;
+            opacity: 0.5;
+        }
+        
+        /* Стили для контейнера азкаров */
+        .azkar-container {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(5, 26, 18, 0.3);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .azkar-container.active {
+            display: block;
+        }
+        
+        .azkar-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--liquid-shine);
+            z-index: -1;
+            pointer-events: none;
+            animation: shine 8s infinite;
+            opacity: 0.3;
+        }
+        
+        .azkar-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.1),
+                inset 0 0 10px rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .azkar-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--liquid-shine);
+            z-index: -1;
+            pointer-events: none;
+            animation: shine 8s infinite;
+            opacity: 0.2;
+        }
+        
+        .azkar-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            font-family: 'Amiri', serif;
+            text-align: right;
+            direction: rtl;
+        }
+        
+        .azkar-translation {
+            font-size: 1rem;
+            color: var(--secondary-color);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        
+        .azkar-reference {
+            font-size: 0.8rem;
+            color: var(--gold-color);
+            font-style: italic;
         }
         
         .ayah-container {
@@ -490,6 +638,17 @@
                     0 15px 35px rgba(0, 0, 0, 0.2),
                     inset 0 0 20px rgba(255, 255, 255, 0.1);
             }
+            
+            .azkar-item {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .azkar-item:hover {
+                transform: translateY(-3px);
+                box-shadow: 
+                    0 8px 25px rgba(0, 0, 0, 0.15),
+                    inset 0 0 15px rgba(255, 255, 255, 0.1);
+            }
         }
         
         @media (min-width: 768px) {
@@ -514,6 +673,20 @@
             .next-prayer-info {
                 padding: 20px;
                 border-radius: 20px;
+            }
+            
+            .azkar-container {
+                padding: 30px;
+                border-radius: 25px;
+            }
+            
+            .azkar-item {
+                padding: 20px;
+                border-radius: 18px;
+            }
+            
+            .azkar-text {
+                font-size: 1.4rem;
             }
         }
     </style>
@@ -582,350 +755,197 @@
             <span class="next-prayer-time" id="next-prayer-time">--:--:--</span>
         </div>
         
-        <div class="ayah-container">
-            <div class="ayah">وَأَقِمِ ٱلصَّلَوٰةَ لِذِكْرِىٓ</div>
-            <div class="ayah-translation">"Совершай намаз для Моего поминания" (Коран, 20:14)</div>
+        <!-- Переключатель азкаров -->
+        <div class="azkar-switcher" id="azkar-switcher">
+            <div class="azkar-slider" id="azkar-slider"></div>
+            <div class="azkar-option active" data-target="morning">Утренние</div>
+            <div class="azkar-option" data-target="evening">Вечерние</div>
+            <div class="azkar-option" data-target="after-prayer">После намаза</div>
         </div>
         
-        <button class="notify-btn" id="notify-btn">
-            <span id="notify-text">Включить уведомления</span>
-        </button>
+        <!-- Контейнеры с азкарами -->
+        <div class="azkar-container active" id="morning-azkar">
+            <div class="azkar-item">
+                <div class="azkar-text">أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
+                <div class="azkar-translation">"Мы проснулись, и власть принадлежит Аллаху, хвала Аллаху, нет божества, кроме Аллаха, Единого, у Которого нет сотоварища, Ему принадлежит власть и Ему хвала, и Он над всякой вещью мощен!"</div>
+                <div class="azkar-reference">(Муслим 2723)</div>
+            </div>
+            
+            <div class="azkar-item">
+                <div class="azkar-text">اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ</div>
+                <div class="azkar-translation">"О Аллах, с Тобой мы встретили утро, с Тобой мы встретили вечер, с Тобой мы живем и с Тобой умираем, и к Тебе воскресение!"</div>
+                <div class="azkar-reference">(Тирмизи 3391, достоверный)</div>
+            </div>
+            
+            <div class="azkar-item">
+                <div class="azkar-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
+                <div class="azkar-translation">"Пречист Аллах и хвала Ему" (100 раз)</div>
+                <div class="azkar-reference">(Муслим 2691)</div>
+            </div>
+        </div>
         
-        <button class="install-btn" id="installBtn">Установить приложение</button>
+        <div class="azkar-container" id="evening-azkar">
+            <div class="azkar-item">
+                <div class="azkar-text">أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
+                <div class="azkar-translation">"Мы дожили до вечера, и власть принадлежит Аллаху, хвала Аллаху, нет божества, кроме Аллаха, Единого, у Которого нет сотоварища, Ему принадлежит власть и Ему хвала, и Он над всякой вещью мощен!"</div>
+                <div class="azkar-reference">(Муслим 2723)</div>
+            </div>
+            
+            <div class="azkar-item">
+                <div class="azkar-text">اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ</div>
+                <div class="azkar-translation">"О Аллах, с Тобой мы встретили вечер, с Тобой мы встретили утро, с Тобой мы живем и с Тобой умираем, и к Тебе воскресение!"</div>
+                <div class="azkar-reference">(Тирмизи 3391, достоверный)</div>
+            </div>
+            
+            <div class="azkar-item">
+                <div class="azkar-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
+                <div class="azkar-translation">"Пречист Аллах и хвала Ему" (100 раз)</div>
+                <div class="azkar-reference">(Муслим 2691)</div>
+            </div>
+        </div>
+        
+        <div class="azkar-container" id="after-prayer-azkar">
+            <div class="azkar-item">
+                <div class="azkar-text">أَسْتَغْفِرُ اللَّهَ (3 مرات) اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ</div>
+                <div class="azkar-translation">"Прошу прощения у Аллаха" (3 раза), "О Аллах, Ты - Мир, и от Тебя мир, благословен Ты, о Обладатель величия и почета!"</div>
+                <div class="azkar-reference">(Муслим 591)</div>
+            </div>
+            
+            <div class="azkar-item">
+                <div class="azkar-text">لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
+                <div class="azkar-translation">"Нет божества, кроме Аллаха, Единого, у Которого нет сотоварища, Ему принадлежит власть и Ему хвала, и Он над всякой вещью мощен!" (10 раз после обязательных молитв)</div>
+                <div class="azkar-reference">(Абу Дауд 1506, достоверный)</div>
+            </div>
+            
+            <div class="azkar-item">
+                <div class="azkar-text">سُبْحَانَ اللَّهِ (33 مرة) ، الْحَمْدُ لِلَّهِ (33 مرة) ، اللَّهُ أَكْبَرُ (33 مرة)</div>
+                <div class="azkar-translation">"Пречист Аллах" (33 раза), "Хвала Аллаху" (33 раза), "Аллах Велик" (33 раза)</div>
+                <div class="azkar-reference">(Муслим 597)</div>
+            </div>
+        </div><div class="ayah-container">
+            <div class="ayah">وَأَقِمِ ٱلصَّلَوٰةَ لِذِكْرِىٓ</div>
+            <div class="ayah-translation">"И совершай намаз для воспоминания обо Мне"</div>
+        </div>
+
+        <button class="notify-btn" id="notify-btn">Уведомлять о намазе</button>
+        
+        <button class="install-btn" id="install-btn">Установить приложение</button>
     </div>
 
     <script>
-        // Текущие времена намаза
-        let prayerTimes = null;
-        let deferredPrompt = null;
-        let currentCity = null;
-        let nextPrayerTimer = null;
-        
-        // Создаем жидкие элементы фона
-        function createLiquidElements() {
-            const bg = document.getElementById('liquid-bg');
-            bg.innerHTML = '';
-            
-            for (let i = 0; i < 5; i++) {
-                const element = document.createElement('div');
-                element.className = 'liquid-element';
-                
-                const size = Math.random() * 300 + 200;
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                const delay = Math.random() * 10;
-                const duration = 15 + Math.random() * 15;
-                
-                element.style.width = `${size}px`;
-                element.style.height = `${size}px`;
-                element.style.left = `${posX}%`;
-                element.style.top = `${posY}%`;
-                element.style.animationDelay = `${delay}s`;
-                element.style.animationDuration = `${duration}s`;
-                
-                bg.appendChild(element);
-            }
-        }
-        
-        // Получаем времена намаза
-        async function getPrayerTimes(cityId) {
-            const cities = {
-                "moscow": { lat: 55.7558, lng: 37.6176, method: 3 },
-                "saint-petersburg": { lat: 59.9343, lng: 30.3351, method: 3 },
-                "kazan": { lat: 55.7961, lng: 49.1064, method: 3 },
-                "ufa": { lat: 54.7351, lng: 55.9587, method: 3 },
-                "makhachkala": { lat: 42.9831, lng: 47.5047, method: 1 },
-                "grozny": { lat: 43.3180, lng: 45.6982, method: 1 },
-                "novosibirsk": { lat: 55.0084, lng: 82.9357, method: 3 },
-                "krasnoyarsk": { lat: 56.0153, lng: 92.8932, method: 3 }
-            };
-            
-            if (!cities[cityId]) return null;
-            
-            currentCity = cityId;
-            const city = cities[cityId];
-            const date = new Date();
-            const dateStr = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
-            
-            try {
-                const response = await fetch(
-                    `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${city.lat}&longitude=${city.lng}&method=${city.method}&school=0`
-                );
-                
-                const data = await response.json();
-                
-                if (data.code === 200 && data.data) {
-                    return {
-                        Fajr: data.data.timings.Fajr,
-                        Sunrise: data.data.timings.Sunrise,
-                        Dhuhr: data.data.timings.Dhuhr,
-                        Asr: data.data.timings.Asr,
-                        Maghrib: data.data.timings.Maghrib,
-                        Isha: data.data.timings.Isha
-                    };
-                }
-            } catch (error) {
-                console.error("Ошибка получения данных:", error);
-                return null;
-            }
+        // Создаем жидкие элементы для фона
+        const liquidBg = document.getElementById('liquid-bg');
+        for (let i = 0; i < 5; i++) {
+            const element = document.createElement('div');
+            element.className = 'liquid-element';
+            element.style.width = `${Math.random() * 300 + 100}px`;
+            element.style.height = element.style.width;
+            element.style.left = `${Math.random() * 100}%`;
+            element.style.top = `${Math.random() * 100}%`;
+            element.style.animationDelay = `${Math.random() * 10}s`;
+            liquidBg.appendChild(element);
         }
 
-        // Обновляем отображение времен намаза
-        async function updatePrayerTimes(cityId) {
-            const timings = await getPrayerTimes(cityId);
-            if (!timings) return;
-            
-            prayerTimes = timings;
-            
-            // Обновляем все времена намаза
-            document.querySelectorAll('.prayer-card').forEach(card => {
-                const prayerType = card.dataset.prayer;
-                const timeElement = card.querySelector('.prayer-time');
-                const timeRemainingElement = card.querySelector('.time-remaining');
+        // Логика переключения азкаров
+        const azkarOptions = document.querySelectorAll('.azkar-option');
+        const azkarSlider = document.getElementById('azkar-slider');
+        const azkarContainers = document.querySelectorAll('.azkar-container');
+
+        azkarOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Удаляем активный класс у всех опций
+                azkarOptions.forEach(opt => opt.classList.remove('active'));
+                // Добавляем активный класс текущей опции
+                option.classList.add('active');
                 
-                if (prayerType && timings[prayerType.charAt(0).toUpperCase() + prayerType.slice(1)]) {
-                    const time = timings[prayerType.charAt(0).toUpperCase() + prayerType.slice(1)];
-                    timeElement.textContent = formatTime(time);
-                    timeElement.dataset.time = time;
-                    timeRemainingElement.textContent = '';
-                }
-            });
-            
-            checkCurrentPrayer();
-        }
-
-        // Форматируем время
-        function formatTime(timeStr) {
-            if (!timeStr) return "--:--";
-            return timeStr.split(' ')[0];
-        }
-
-        // Проверяем текущий намаз
-        function checkCurrentPrayer() {
-            if (!prayerTimes) return;
-            
-            const now = new Date();
-            const currentTime = now.getHours() * 60 + now.getMinutes();
-            
-            const prayerTimesInMinutes = {
-                'Fajr': convertToMinutes(prayerTimes.Fajr),
-                'Sunrise': convertToMinutes(prayerTimes.Sunrise),
-                'Dhuhr': convertToMinutes(prayerTimes.Dhuhr),
-                'Asr': convertToMinutes(prayerTimes.Asr),
-                'Maghrib': convertToMinutes(prayerTimes.Maghrib),
-                'Isha': convertToMinutes(prayerTimes.Isha)
-            };
-            
-            const cards = document.querySelectorAll('.prayer-card');
-            cards.forEach(card => card.classList.remove('current'));
-            
-            // Определяем текущий намаз
-            let currentPrayer = null;
-            let nextPrayerTime = 0;
-            
-            if (currentTime >= prayerTimesInMinutes.Isha || currentTime < prayerTimesInMinutes.Fajr) {
-                currentPrayer = cards[5]; // Иша
-                nextPrayerTime = prayerTimesInMinutes.Fajr + 24*60; // Фаджр следующего дня
-            } else if (currentTime >= prayerTimesInMinutes.Maghrib) {
-                currentPrayer = cards[4]; // Магриб
-                nextPrayerTime = prayerTimesInMinutes.Isha;
-            } else if (currentTime >= prayerTimesInMinutes.Asr) {
-                currentPrayer = cards[3]; // Аср
-                nextPrayerTime = prayerTimesInMinutes.Maghrib;
-            } else if (currentTime >= prayerTimesInMinutes.Dhuhr) {
-                currentPrayer = cards[2]; // Зухр
-                nextPrayerTime = prayerTimesInMinutes.Asr;
-            } else if (currentTime >= prayerTimesInMinutes.Sunrise) {
-                currentPrayer = cards[1]; // Восход
-                nextPrayerTime = prayerTimesInMinutes.Dhuhr;
-            } else if (currentTime >= prayerTimesInMinutes.Fajr) {
-                currentPrayer = cards[0]; // Фаджр
-                nextPrayerTime = prayerTimesInMinutes.Sunrise;
-            }
-            
-            if (currentPrayer) {
-                currentPrayer.classList.add('current');
-                updateTimeRemaining(currentPrayer, nextPrayerTime);
-            }
-        }
-
-        function convertToMinutes(timeStr) {
-            if (!timeStr) return 0;
-            const [hours, minutes] = timeStr.split(':').map(Number);
-            return hours * 60 + minutes;
-        }
-
-        // Обновляем время до следующего намаза
-        function updateTimeRemaining(currentPrayerCard, nextPrayerInMinutes) {
-            if (!currentPrayerCard) return;
-            
-            const now = new Date();
-            const currentTime = now.getHours() * 60 + now.getMinutes();
-            
-            const prayerCards = Array.from(document.querySelectorAll('.prayer-card'));
-            const currentIndex = prayerCards.indexOf(currentPrayerCard);
-            const nextIndex = (currentIndex + 1) % prayerCards.length;
-            const nextPrayerCard = prayerCards[nextIndex];
-            
-            if (!nextPrayerCard) return;
-            
-            const nextPrayerName = nextPrayerCard.querySelector('.prayer-name').textContent;
-            document.getElementById('next-prayer-name').textContent = nextPrayerName;
-            
-            // Запускаем таймер обновления
-            if (nextPrayerTimer) {
-                clearInterval(nextPrayerTimer);
-            }
-            
-            nextPrayerTimer = setInterval(() => {
-                updateNextPrayerTime(nextPrayerInMinutes);
-            }, 1000);
-            
-            updateNextPrayerTime(nextPrayerInMinutes);
-        }
-
-        function updateNextPrayerTime(nextPrayerInMinutes) {
-            const now = new Date();
-            const currentTime = now.getHours() * 60 + now.getMinutes();
-            const currentTimeInSeconds = currentTime * 60 + now.getSeconds();
-            
-            let timeRemainingInSeconds = (nextPrayerInMinutes * 60) - currentTimeInSeconds;
-            
-            // Если время отрицательное (переход через полночь)
-            if (timeRemainingInSeconds < 0) {
-                timeRemainingInSeconds += 24 * 60 * 60;
-            }
-            
-            // Форматируем оставшееся время
-            const hours = Math.floor(timeRemainingInSeconds / 3600);
-            const minutes = Math.floor((timeRemainingInSeconds % 3600) / 60);
-            const seconds = timeRemainingInSeconds % 60;
-            
-            document.getElementById('next-prayer-time').textContent = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            // Обновляем время для текущего намаза
-            const currentPrayerCard = document.querySelector('.prayer-card.current');
-            if (currentPrayerCard) {
-                const timeRemainingElement = currentPrayerCard.querySelector('.time-remaining');
-                if (timeRemainingElement) {
-                    if (hours > 0) {
-                        timeRemainingElement.textContent = `До конца: ${hours}ч ${minutes}м`;
-                    } else {
-                        timeRemainingElement.textContent = `До конца: ${minutes}м`;
+                // Перемещаем слайдер
+                const index = Array.from(azkarOptions).indexOf(option);
+                azkarSlider.style.transform = `translateX(${index * 100}%)`;
+                
+                // Показываем соответствующий контейнер
+                const target = option.getAttribute('data-target');
+                azkarContainers.forEach(container => {
+                    container.classList.remove('active');
+                    if (container.id === `${target}-azkar`) {
+                        container.classList.add('active');
                     }
-                }
-            }
-        }
+                });
+            });
+        });
 
-        // Управление уведомлениями
-        function setupNotifications() {
-            const notifyBtn = document.getElementById('notify-btn');
-            const notifyText = document.getElementById('notify-text');
-            
-            // Проверяем поддержку уведомлений
-            if (!('Notification' in window)) {
-                notifyText.textContent = "Уведомления не поддерживаются";
-                notifyBtn.disabled = true;
-                return;
+        // Логика для времен намаза (заглушка)
+        const citySelect = document.getElementById('city-select');
+        citySelect.addEventListener('change', function() {
+            if (this.value) {
+                // Здесь будет запрос к API с временами намаза
+                console.log(`Выбран город: ${this.value}`);
+                
+                // Заглушка - случайные времена
+                const prayerCards = document.querySelectorAll('.prayer-card');
+                prayerCards.forEach(card => {
+                    const hours = Math.floor(Math.random() * 12) + 1;
+                    const minutes = Math.floor(Math.random() * 60);
+                    const time = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                    card.querySelector('.prayer-time').textContent = time;
+                });
+                
+                // Установим случайный текущий намаз
+                const randomPrayer = prayerCards[Math.floor(Math.random() * prayerCards.length)];
+                prayerCards.forEach(card => card.classList.remove('current'));
+                randomPrayer.classList.add('current');
+                
+                // Обновим информацию о следующем намазе
+                document.getElementById('next-prayer-name').textContent = randomPrayer.querySelector('.prayer-name').textContent;
+                document.getElementById('next-prayer-time').textContent = '01:23:45';
             }
-            
-            // Проверяем разрешение на уведомления
+        });
+
+        // Логика для кнопки уведомлений
+        const notifyBtn = document.getElementById('notify-btn');
+        notifyBtn.addEventListener('click', function() {
             if (Notification.permission === 'granted') {
-                notifyText.textContent = "Уведомления включены";
-                setupNotificationAlerts();
-            } else if (Notification.permission === 'denied') {
-                notifyText.textContent = "Уведомления отключены";
-                notifyBtn.disabled = true;
+                alert('Уведомления уже включены!');
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        alert('Уведомления включены! Вы будете получать напоминания о намазе.');
+                    }
+                });
             } else {
-                notifyText.textContent = "Включить уведомления";
+                alert('Разрешение на уведомления было отклонено. Пожалуйста, разрешите уведомления в настройках браузера.');
             }
-            
-            // Обработчик клика по кнопке
-            notifyBtn.addEventListener('click', async () => {
-                if (Notification.permission === 'denied') {
-                    alert('Разрешение на уведомления было отклонено. Пожалуйста, разрешите уведомления в настройках браузера.');
-                    return;
-                }
-                
-                const permission = await Notification.requestPermission();
-                
-                if (permission === 'granted') {
-                    notifyText.textContent = "Уведомления включены";
-                    createNotification('Уведомления включены', 'Вы будете получать напоминания о намазах');
-                    setupNotificationAlerts();
-                } else {
-                    notifyText.textContent = "Уведомления отключены";
-                }
-            });
-        }
+        });
+
+        // Логика для кнопки установки PWA
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
         
-        // Настройка напоминаний о намазах
-        function setupNotificationAlerts() {
-            if (!prayerTimes || Notification.permission !== 'granted') return;
-            
-            // Здесь можно реализовать логику уведомлений о намазах
-            console.log("Уведомления настроены для:", prayerTimes);
-        }
-        
-        // Создание уведомления
-        function createNotification(title, body) {
-            if (Notification.permission === 'granted') {
-                new Notification(title, { body });
-            }
-        }
-        
-        // Настройка PWA
-        function setupPWA() {
-            const installBtn = document.getElementById('installBtn');
-            
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                installBtn.style.display = 'block';
-            });
-            
-            installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        console.log('Пользователь установил приложение');
-                    }
-                    deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
                     installBtn.style.display = 'none';
                 }
-            });
-            
-            // Скрываем кнопку, если приложение уже установлено
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                installBtn.style.display = 'none';
+                deferredPrompt = null;
             }
-        }
-
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', () => {
-            createLiquidElements();
-            setupPWA();
-            setupNotifications();
-            
-            document.getElementById('city-select').addEventListener('change', (e) => {
-                if (e.target.value) {
-                    updatePrayerTimes(e.target.value);
-                }
-            });
-
-            // Автозагрузка для Москвы при открытии
-            document.getElementById('city-select').value = "moscow";
-            updatePrayerTimes("moscow");
-            
-            // Обновляем времена каждую минуту
-            setInterval(() => {
-                if (currentCity) {
-                    checkCurrentPrayer();
-                }
-            }, 60000);
         });
+
+        // Проверяем, установлено ли приложение
+        window.addEventListener('appinstalled', () => {
+            installBtn.style.display = 'none';
+        });
+
+        // Если приложение уже установлено, скрываем кнопку
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            installBtn.style.display = 'none';
+        }
     </script>
 </body>
 </html>
