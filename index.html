@@ -7,9 +7,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Намаз">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <link rel="apple-touch-startup-image" href="icons/startup.png">
     <title>Точные времена намаза</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@700&display=swap');
@@ -41,6 +38,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -383,6 +381,10 @@
             transition: all 0.3s ease;
             position: relative;
             z-index: 2;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .azkar-option.active {
@@ -392,8 +394,6 @@
         .azkar-slider {
             position: absolute;
             top: 5px;
-            left: 5px;
-            width: calc(33.33% - 10px);
             height: calc(100% - 10px);
             background: linear-gradient(
                 135deg,
@@ -409,6 +409,8 @@
             backdrop-filter: blur(5px);
             overflow: hidden;
             will-change: transform;
+            width: calc(33.333% - 10px);
+            left: 5px;
         }
         
         .azkar-slider::before {
@@ -423,18 +425,17 @@
             opacity: 0.5;
         }
         
-        /* Адаптация для Safari */
-        @media not all and (min-resolution:.001dpcm) { 
-            @supports (-webkit-appearance:none) {
-                .azkar-switcher {
-                    overflow: hidden;
-                    position: relative;
-                }
-                
-                .azkar-option {
-                    padding: 15px 10px;
-                }
-            }
+        /* Эффект стекла при перетаскивании */
+        .azkar-switcher.dragging .azkar-option {
+            transition: none;
+            transform: translateZ(0);
+        }
+        
+        .azkar-switcher.dragging .azkar-slider {
+            transition: none;
+            box-shadow: 
+                0 4px 20px rgba(201, 167, 105, 0.3),
+                inset 0 0 15px rgba(255, 255, 255, 0.2);
         }
         
         /* Контейнеры с азкарами */
@@ -639,33 +640,6 @@
             left: 100%;
         }
         
-        /* Анимации для ПК */
-        @media (hover: hover) and (pointer: fine) {
-            .container {
-                transition: transform 0.5s ease, box-shadow 0.5s ease;
-            }
-            
-            body:hover .container {
-                transform: perspective(1000px) rotateY(1deg) rotateX(0.5deg);
-                box-shadow: 
-                    0 12px 40px rgba(0, 0, 0, 0.25),
-                    0 0 0 1px rgba(201, 167, 105, 0.1);
-            }
-            
-            .prayer-card {
-                transition: 
-                    transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
-                    box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            }
-            
-            .prayer-card:hover {
-                transform: translateY(-6px) scale(1.02);
-                box-shadow: 
-                    0 15px 35px rgba(0, 0, 0, 0.2),
-                    inset 0 0 20px rgba(255, 255, 255, 0.1);
-            }
-        }
-        
         /* Адаптация для маленьких экранов */
         @media (max-width: 480px) {
             .azkar-switcher {
@@ -718,22 +692,6 @@
             
             .azkar-text {
                 font-size: 1.4rem;
-            }
-        }
-        
-        /* Стили для состояния перетаскивания */
-        .azkar-switcher.dragging {
-            cursor: grabbing;
-        }
-        
-        .azkar-switcher.dragging .azkar-slider {
-            transition: none;
-        }
-        
-        /* Анимация переключения для iOS */
-        @supports (-webkit-touch-callout: none) {
-            .azkar-slider {
-                transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             }
         }
     </style>
@@ -829,12 +787,6 @@
                 <div class="azkar-translation">"Пречист Аллах и хвала Ему" (100 раз)</div>
                 <div class="azkar-reference">(Муслим 2691)</div>
             </div>
-            
-            <div class="azkar-item">
-                <div class="azkar-text">اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا</div>
-                <div class="azkar-translation">"О Аллах, я прошу у Тебя полезного знания, благого удела и принимаемого деяния"</div>
-                <div class="azkar-reference">(Ибн Маджа 925, достоверный)</div>
-            </div>
         </div>
         
         <div class="azkar-container" id="evening-azkar">
@@ -855,12 +807,6 @@
                 <div class="azkar-translation">"Пречист Аллах и хвала Ему" (100 раз)</div>
                 <div class="azkar-reference">(Муслим 2691)</div>
             </div>
-            
-            <div class="azkar-item">
-                <div class="azkar-text">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَأَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ وَالْبُخْلِ، وَأَعُوذُ بِكَ مِنْ غَلَبَةِ الدَّيْنِ وَقَهْرِ الرِّجَالِ</div>
-                <div class="azkar-translation">"О Аллах, я прибегаю к Тебе от печали и горя, и я прибегаю к Тебе от слабости и лени, и я прибегаю к Тебе от трусости и скупости, и я прибегаю к Тебе от бремени долга и от притеснения людей"</div>
-                <div class="azkar-reference">(Абу Дауд 1555, достоверный)</div>
-            </div>
         </div>
         
         <div class="azkar-container" id="after-prayer-azkar">
@@ -880,12 +826,6 @@
                 <div class="azkar-text">سُبْحَانَ اللَّهِ (33 مرة) ، الْحَمْدُ لِلَّهِ (33 مرة) ، اللَّهُ أَكْبَرُ (33 مرة)</div>
                 <div class="azkar-translation">"Пречист Аллах" (33 раза), "Хвала Аллаху" (33 раза), "Аллах Велик" (33 раза)</div>
                 <div class="azkar-reference">(Муслим 597)</div>
-            </div>
-            
-            <div class="azkar-item">
-                <div class="azkar-text">آيَةُ الْكُرْسِيِّ</div>
-                <div class="azkar-translation">Чтение аята Аль-Курси (255 аят суры Аль-Бакара) после каждой обязательной молитвы</div>
-                <div class="azkar-reference">(Ан-Насаи в "Амаль аль-яум ва аль-лейла", достоверный)</div>
             </div>
         </div>
         
@@ -913,89 +853,69 @@
             liquidBg.appendChild(element);
         }
 
-        // Данные о временах намаза для разных городов (точные расчеты)
-        const prayerTimesData = {
-            'moscow': {
-                fajr: '03:15',
-                sunrise: '05:30',
-                dhuhr: '12:30',
-                asr: '16:15',
-                maghrib: '20:15',
-                isha: '22:30'
-            },
-            'saint-petersburg': {
-                fajr: '03:45',
-                sunrise: '06:00',
-                dhuhr: '13:00',
-                asr: '16:45',
-                maghrib: '21:00',
-                isha: '23:15'
-            },
-            'kazan': {
-                fajr: '03:30',
-                sunrise: '05:45',
-                dhuhr: '12:45',
-                asr: '16:30',
-                maghrib: '20:30',
-                isha: '22:45'
-            },
-            'ufa': {
-                fajr: '04:00',
-                sunrise: '06:15',
-                dhuhr: '13:15',
-                asr: '17:00',
-                maghrib: '20:45',
-                isha: '23:00'
-            },
-            'makhachkala': {
-                fajr: '03:45',
-                sunrise: '05:30',
-                dhuhr: '12:15',
-                asr: '15:45',
-                maghrib: '19:30',
-                isha: '21:15'
-            },
-            'grozny': {
-                fajr: '03:30',
-                sunrise: '05:15',
-                dhuhr: '12:00',
-                asr: '15:30',
-                maghrib: '19:15',
-                isha: '21:00'
-            },
-            'novosibirsk': {
-                fajr: '04:30',
-                sunrise: '06:45',
-                dhuhr: '13:45',
-                asr: '17:30',
-                maghrib: '21:15',
-                isha: '23:30'
-            },
-            'krasnoyarsk': {
-                fajr: '04:15',
-                sunrise: '06:30',
-                dhuhr: '13:30',
-                asr: '17:15',
-                maghrib: '21:00',
-                isha: '23:15'
+        // API для получения времен намаза
+        async function getPrayerTimes(city) {
+            const date = new Date();
+            const day = date.getDate();
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+            
+            // Координаты городов
+            const cities = {
+                'moscow': { lat: 55.7558, lng: 37.6176 },
+                'saint-petersburg': { lat: 59.9343, lng: 30.3351 },
+                'kazan': { lat: 55.7961, lng: 49.1064 },
+                'ufa': { lat: 54.7351, lng: 55.9587 },
+                'makhachkala': { lat: 42.9831, lng: 47.5047 },
+                'grozny': { lat: 43.3180, lng: 45.6982 },
+                'novosibirsk': { lat: 55.0084, lng: 82.9357 },
+                'krasnoyarsk': { lat: 56.0153, lng: 92.8932 }
+            };
+            
+            const { lat, lng } = cities[city];
+            
+            try {
+                // Используем API Aladhan для получения времен намаза
+                const response = await fetch(`https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${lat}&longitude=${lng}&method=2`);
+                const data = await response.json();
+                
+                if (data.code === 200 && data.data) {
+                    return {
+                        fajr: data.data.timings.Fajr,
+                        sunrise: data.data.timings.Sunrise,
+                        dhuhr: data.data.timings.Dhuhr,
+                        asr: data.data.timings.Asr,
+                        maghrib: data.data.timings.Maghrib,
+                        isha: data.data.timings.Isha
+                    };
+                }
+            } catch (e) {
+                console.error('Ошибка получения времен намаза:', e);
             }
-        };
+            
+            return null;
+        }
 
         // Функция для обновления времен намаза
-        function updatePrayerTimes(city) {
-            const times = prayerTimesData[city];
+        async function updatePrayerTimes(city) {
+            const times = await getPrayerTimes(city);
             if (!times) return;
 
             // Устанавливаем времена намаза
-            document.getElementById('fajr-time').textContent = times.fajr;
-            document.getElementById('sunrise-time').textContent = times.sunrise;
-            document.getElementById('dhuhr-time').textContent = times.dhuhr;
-            document.getElementById('asr-time').textContent = times.asr;
-            document.getElementById('maghrib-time').textContent = times.maghrib;
-            document.getElementById('isha-time').textContent = times.isha;
+            document.getElementById('fajr-time').textContent = formatTime(times.fajr);
+            document.getElementById('sunrise-time').textContent = formatTime(times.sunrise);
+            document.getElementById('dhuhr-time').textContent = formatTime(times.dhuhr);
+            document.getElementById('asr-time').textContent = formatTime(times.asr);
+            document.getElementById('maghrib-time').textContent = formatTime(times.maghrib);
+            document.getElementById('isha-time').textContent = formatTime(times.isha);
 
             // Вычисляем текущий намаз и время до следующего
             updateCurrentPrayer();
+        }
+
+        // Форматирование времени (убираем +03 и т.д.)
+        function formatTime(timeStr) {
+            return timeStr.split(' ')[0];
         }
 
         // Функция для определения текущего намаза
@@ -1301,10 +1221,26 @@
 
         // Обработчик выбора города
         const citySelect = document.getElementById('city-select');
-        citySelect.addEventListener('change', function() {
+        citySelect.addEventListener('change', async function() {
             if (this.value) {
-                updatePrayerTimes(this.value);
+                await updatePrayerTimes(this.value);
                 startPrayerTimeUpdates();
+                
+                // Обновляем времена намаза каждый день в полночь
+                const now = new Date();
+                const midnight = new Date(
+                    now.getFullYear(),
+                    now.getMonth(),
+                    now.getDate() + 1,
+                    0, 0, 0
+                );
+                const timeToMidnight = midnight - now;
+                
+                setTimeout(() => {
+                    updatePrayerTimes(this.value);
+                    // Устанавливаем ежедневное обновление
+                    setInterval(() => updatePrayerTimes(this.value), 24 * 60 * 60 * 1000);
+                }, timeToMidnight);
             }
         });
 
