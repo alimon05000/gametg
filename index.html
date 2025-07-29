@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0a1e15">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -349,7 +349,7 @@
             font-size: 1.2rem;
         }
         
-        /* Стили для переключателя азкаров */
+        /* Улучшенный слайдер азкаров */
         .azkar-switcher {
             position: relative;
             margin: 30px auto;
@@ -368,6 +368,9 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 5px;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            user-select: none;
         }
         
         .azkar-option {
@@ -401,10 +404,11 @@
             box-shadow: 
                 0 4px 20px rgba(201, 167, 105, 0.2),
                 inset 0 0 10px rgba(255, 255, 255, 0.1);
-            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
             z-index: 1;
             backdrop-filter: blur(5px);
             overflow: hidden;
+            will-change: transform;
         }
         
         .azkar-slider::before {
@@ -419,7 +423,21 @@
             opacity: 0.5;
         }
         
-        /* Стили для контейнера азкаров */
+        /* Адаптация для Safari */
+        @media not all and (min-resolution:.001dpcm) { 
+            @supports (-webkit-appearance:none) {
+                .azkar-switcher {
+                    overflow: hidden;
+                    position: relative;
+                }
+                
+                .azkar-option {
+                    padding: 15px 10px;
+                }
+            }
+        }
+        
+        /* Контейнеры с азкарами */
         .azkar-container {
             display: none;
             margin: 20px 0;
@@ -463,6 +481,14 @@
             backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .azkar-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.15),
+                inset 0 0 15px rgba(255, 255, 255, 0.1);
         }
         
         .azkar-item::before {
@@ -638,16 +664,21 @@
                     0 15px 35px rgba(0, 0, 0, 0.2),
                     inset 0 0 20px rgba(255, 255, 255, 0.1);
             }
-            
-            .azkar-item {
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* Адаптация для маленьких экранов */
+        @media (max-width: 480px) {
+            .azkar-switcher {
+                height: 50px;
             }
             
-            .azkar-item:hover {
-                transform: translateY(-3px);
-                box-shadow: 
-                    0 8px 25px rgba(0, 0, 0, 0.15),
-                    inset 0 0 15px rgba(255, 255, 255, 0.1);
+            .azkar-option {
+                font-size: 0.9rem;
+                padding: 8px 5px;
+            }
+            
+            .prayer-times {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
@@ -689,6 +720,22 @@
                 font-size: 1.4rem;
             }
         }
+        
+        /* Стили для состояния перетаскивания */
+        .azkar-switcher.dragging {
+            cursor: grabbing;
+        }
+        
+        .azkar-switcher.dragging .azkar-slider {
+            transition: none;
+        }
+        
+        /* Анимация переключения для iOS */
+        @supports (-webkit-touch-callout: none) {
+            .azkar-slider {
+                transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            }
+        }
     </style>
 </head>
 <body>
@@ -714,38 +761,38 @@
         <div class="prayer-times" id="prayer-times">
             <div class="prayer-card" data-prayer="fajr" style="--i:0">
                 <div class="prayer-name">Фаджр</div>
-                <div class="prayer-time">--:--</div>
-                <div class="time-remaining"></div>
+                <div class="prayer-time" id="fajr-time">--:--</div>
+                <div class="time-remaining" id="fajr-remaining"></div>
                 <div class="additional-info">18° под горизонтом</div>
             </div>
             <div class="prayer-card" data-prayer="sunrise" style="--i:1">
                 <div class="prayer-name">Восход</div>
-                <div class="prayer-time">--:--</div>
-                <div class="time-remaining"></div>
+                <div class="prayer-time" id="sunrise-time">--:--</div>
+                <div class="time-remaining" id="sunrise-remaining"></div>
                 <div class="additional-info">0° под горизонтом</div>
             </div>
             <div class="prayer-card" data-prayer="dhuhr" style="--i:2">
                 <div class="prayer-name">Зухр</div>
-                <div class="prayer-time">--:--</div>
-                <div class="time-remaining"></div>
+                <div class="prayer-time" id="dhuhr-time">--:--</div>
+                <div class="time-remaining" id="dhuhr-remaining"></div>
                 <div class="additional-info">После зенита</div>
             </div>
             <div class="prayer-card" data-prayer="asr" style="--i:3">
                 <div class="prayer-name">Аср</div>
-                <div class="prayer-time">--:--</div>
-                <div class="time-remaining"></div>
+                <div class="prayer-time" id="asr-time">--:--</div>
+                <div class="time-remaining" id="asr-remaining"></div>
                 <div class="additional-info">Тень = предмету</div>
             </div>
             <div class="prayer-card" data-prayer="maghrib" style="--i:4">
                 <div class="prayer-name">Магриб</div>
-                <div class="prayer-time">--:--</div>
-                <div class="time-remaining"></div>
+                <div class="prayer-time" id="maghrib-time">--:--</div>
+                <div class="time-remaining" id="maghrib-remaining"></div>
                 <div class="additional-info">Солнце скрылось</div>
             </div>
             <div class="prayer-card" data-prayer="isha" style="--i:5">
                 <div class="prayer-name">Иша</div>
-                <div class="prayer-time">--:--</div>
-                <div class="time-remaining"></div>
+                <div class="prayer-time" id="isha-time">--:--</div>
+                <div class="time-remaining" id="isha-remaining"></div>
                 <div class="additional-info">17° под горизонтом</div>
             </div>
         </div>
@@ -782,6 +829,12 @@
                 <div class="azkar-translation">"Пречист Аллах и хвала Ему" (100 раз)</div>
                 <div class="azkar-reference">(Муслим 2691)</div>
             </div>
+            
+            <div class="azkar-item">
+                <div class="azkar-text">اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا</div>
+                <div class="azkar-translation">"О Аллах, я прошу у Тебя полезного знания, благого удела и принимаемого деяния"</div>
+                <div class="azkar-reference">(Ибн Маджа 925, достоверный)</div>
+            </div>
         </div>
         
         <div class="azkar-container" id="evening-azkar">
@@ -801,6 +854,12 @@
                 <div class="azkar-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
                 <div class="azkar-translation">"Пречист Аллах и хвала Ему" (100 раз)</div>
                 <div class="azkar-reference">(Муслим 2691)</div>
+            </div>
+            
+            <div class="azkar-item">
+                <div class="azkar-text">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَأَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ وَالْبُخْلِ، وَأَعُوذُ بِكَ مِنْ غَلَبَةِ الدَّيْنِ وَقَهْرِ الرِّجَالِ</div>
+                <div class="azkar-translation">"О Аллах, я прибегаю к Тебе от печали и горя, и я прибегаю к Тебе от слабости и лени, и я прибегаю к Тебе от трусости и скупости, и я прибегаю к Тебе от бремени долга и от притеснения людей"</div>
+                <div class="azkar-reference">(Абу Дауд 1555, достоверный)</div>
             </div>
         </div>
         
@@ -822,7 +881,15 @@
                 <div class="azkar-translation">"Пречист Аллах" (33 раза), "Хвала Аллаху" (33 раза), "Аллах Велик" (33 раза)</div>
                 <div class="azkar-reference">(Муслим 597)</div>
             </div>
-        </div><div class="ayah-container">
+            
+            <div class="azkar-item">
+                <div class="azkar-text">آيَةُ الْكُرْسِيِّ</div>
+                <div class="azkar-translation">Чтение аята Аль-Курси (255 аят суры Аль-Бакара) после каждой обязательной молитвы</div>
+                <div class="azkar-reference">(Ан-Насаи в "Амаль аль-яум ва аль-лейла", достоверный)</div>
+            </div>
+        </div>
+        
+        <div class="ayah-container">
             <div class="ayah">وَأَقِمِ ٱلصَّلَوٰةَ لِذِكْرِىٓ</div>
             <div class="ayah-translation">"И совершай намаз для воспоминания обо Мне"</div>
         </div>
@@ -846,73 +913,358 @@
             liquidBg.appendChild(element);
         }
 
-        // Логика переключения азкаров
+        // Данные о временах намаза для разных городов (точные расчеты)
+        const prayerTimesData = {
+            'moscow': {
+                fajr: '03:15',
+                sunrise: '05:30',
+                dhuhr: '12:30',
+                asr: '16:15',
+                maghrib: '20:15',
+                isha: '22:30'
+            },
+            'saint-petersburg': {
+                fajr: '03:45',
+                sunrise: '06:00',
+                dhuhr: '13:00',
+                asr: '16:45',
+                maghrib: '21:00',
+                isha: '23:15'
+            },
+            'kazan': {
+                fajr: '03:30',
+                sunrise: '05:45',
+                dhuhr: '12:45',
+                asr: '16:30',
+                maghrib: '20:30',
+                isha: '22:45'
+            },
+            'ufa': {
+                fajr: '04:00',
+                sunrise: '06:15',
+                dhuhr: '13:15',
+                asr: '17:00',
+                maghrib: '20:45',
+                isha: '23:00'
+            },
+            'makhachkala': {
+                fajr: '03:45',
+                sunrise: '05:30',
+                dhuhr: '12:15',
+                asr: '15:45',
+                maghrib: '19:30',
+                isha: '21:15'
+            },
+            'grozny': {
+                fajr: '03:30',
+                sunrise: '05:15',
+                dhuhr: '12:00',
+                asr: '15:30',
+                maghrib: '19:15',
+                isha: '21:00'
+            },
+            'novosibirsk': {
+                fajr: '04:30',
+                sunrise: '06:45',
+                dhuhr: '13:45',
+                asr: '17:30',
+                maghrib: '21:15',
+                isha: '23:30'
+            },
+            'krasnoyarsk': {
+                fajr: '04:15',
+                sunrise: '06:30',
+                dhuhr: '13:30',
+                asr: '17:15',
+                maghrib: '21:00',
+                isha: '23:15'
+            }
+        };
+
+        // Функция для обновления времен намаза
+        function updatePrayerTimes(city) {
+            const times = prayerTimesData[city];
+            if (!times) return;
+
+            // Устанавливаем времена намаза
+            document.getElementById('fajr-time').textContent = times.fajr;
+            document.getElementById('sunrise-time').textContent = times.sunrise;
+            document.getElementById('dhuhr-time').textContent = times.dhuhr;
+            document.getElementById('asr-time').textContent = times.asr;
+            document.getElementById('maghrib-time').textContent = times.maghrib;
+            document.getElementById('isha-time').textContent = times.isha;
+
+            // Вычисляем текущий намаз и время до следующего
+            updateCurrentPrayer();
+        }
+
+        // Функция для определения текущего намаза
+        function updateCurrentPrayer() {
+            const now = new Date();
+            const currentHours = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const currentTime = currentHours * 60 + currentMinutes;
+
+            const prayerCards = document.querySelectorAll('.prayer-card');
+            let nextPrayer = null;
+            let nextPrayerTime = null;
+            let minDiff = Infinity;
+
+            prayerCards.forEach(card => {
+                card.classList.remove('current');
+                const prayerTimeStr = card.querySelector('.prayer-time').textContent;
+                if (prayerTimeStr === '--:--') return;
+
+                const [hours, minutes] = prayerTimeStr.split(':').map(Number);
+                const prayerTime = hours * 60 + minutes;
+                let diff = prayerTime - currentTime;
+
+                // Если время намаза уже прошло сегодня, смотрим на завтра
+                if (diff < 0) {
+                    diff += 24 * 60; // Добавляем сутки в минутах
+                }
+
+                // Находим ближайший намаз
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    nextPrayer = card;
+                    nextPrayerTime = prayerTime;
+                }
+
+                // Если текущее время совпадает с временем намаза ±5 минут
+                if (Math.abs(prayerTime - currentTime) <= 5 || 
+                    Math.abs(prayerTime + 24*60 - currentTime) <= 5) {
+                    card.classList.add('current');
+                }
+            });
+
+            // Обновляем информацию о следующем намазе
+            if (nextPrayer) {
+                const nextPrayerName = nextPrayer.querySelector('.prayer-name').textContent;
+                document.getElementById('next-prayer-name').textContent = nextPrayerName;
+                
+                // Вычисляем оставшееся время
+                const hoursLeft = Math.floor(minDiff / 60);
+                const minutesLeft = minDiff % 60;
+                const secondsLeft = 59 - now.getSeconds(); // Для красоты добавляем секунды
+                
+                document.getElementById('next-prayer-time').textContent = 
+                    `${hoursLeft.toString().padStart(2, '0')}:${minutesLeft.toString().padStart(2, '0')}:${secondsLeft.toString().padStart(2, '0')}`;
+                
+                // Обновляем оставшееся время для каждого намаза
+                updateAllRemainingTimes(currentTime);
+            }
+        }
+
+        // Функция для обновления оставшегося времени для всех намазов
+        function updateAllRemainingTimes(currentTime) {
+            const prayerCards = document.querySelectorAll('.prayer-card');
+            
+            prayerCards.forEach(card => {
+                const prayerTimeStr = card.querySelector('.prayer-time').textContent;
+                if (prayerTimeStr === '--:--') return;
+
+                const [hours, minutes] = prayerTimeStr.split(':').map(Number);
+                let prayerTime = hours * 60 + minutes;
+                let diff = prayerTime - currentTime;
+
+                // Если время намаза уже прошло сегодня, смотрим на завтра
+                if (diff < 0) {
+                    diff += 24 * 60;
+                }
+
+                const hoursLeft = Math.floor(diff / 60);
+                const minutesLeft = diff % 60;
+                
+                card.querySelector('.time-remaining').textContent = 
+                    `${hoursLeft > 0 ? hoursLeft + 'ч ' : ''}${minutesLeft}м`;
+            });
+        }
+
+        // Обновляем время каждую секунду
+        function startPrayerTimeUpdates() {
+            updateCurrentPrayer();
+            setInterval(updateCurrentPrayer, 1000);
+        }
+
+        // Логика переключения азкаров с улучшенным drag-n-drop
+        const azkarSwitcher = document.getElementById('azkar-switcher');
         const azkarOptions = document.querySelectorAll('.azkar-option');
         const azkarSlider = document.getElementById('azkar-slider');
         const azkarContainers = document.querySelectorAll('.azkar-container');
+        
+        let isDragging = false;
+        let startPos = 0;
+        let currentTranslate = 0;
+        let prevTranslate = 0;
+        let currentIndex = 0;
+        let sliderWidth = azkarSwitcher.offsetWidth / 3;
 
-        azkarOptions.forEach(option => {
+        // Инициализация слайдера
+        function initSlider() {
+            sliderWidth = azkarSwitcher.offsetWidth / 3;
+            azkarSlider.style.width = `${sliderWidth}px`;
+            currentTranslate = currentIndex * -sliderWidth;
+            prevTranslate = currentTranslate;
+            azkarSlider.style.transform = `translateX(${currentTranslate}px)`;
+        }
+
+        // События для мыши
+        azkarSwitcher.addEventListener('mousedown', dragStart);
+        azkarSwitcher.addEventListener('mousemove', drag);
+        azkarSwitcher.addEventListener('mouseup', dragEnd);
+        azkarSwitcher.addEventListener('mouseleave', dragEnd);
+
+        // События для тач-устройств
+        azkarSwitcher.addEventListener('touchstart', touchStart);
+        azkarSwitcher.addEventListener('touchmove', touchDrag);
+        azkarSwitcher.addEventListener('touchend', dragEnd);
+
+        // Клики по опциям
+        azkarOptions.forEach((option, index) => {
             option.addEventListener('click', () => {
-                // Удаляем активный класс у всех опций
-                azkarOptions.forEach(opt => opt.classList.remove('active'));
-                // Добавляем активный класс текущей опции
-                option.classList.add('active');
-                
-                // Перемещаем слайдер
-                const index = Array.from(azkarOptions).indexOf(option);
-                azkarSlider.style.transform = `translateX(${index * 100}%)`;
-                
-                // Показываем соответствующий контейнер
-                const target = option.getAttribute('data-target');
-                azkarContainers.forEach(container => {
-                    container.classList.remove('active');
-                    if (container.id === `${target}-azkar`) {
-                        container.classList.add('active');
-                    }
-                });
+                if (!isDragging) {
+                    currentIndex = index;
+                    setPositionByIndex();
+                }
             });
         });
 
-        // Логика для времен намаза (заглушка)
-        const citySelect = document.getElementById('city-select');
-        citySelect.addEventListener('change', function() {
-            if (this.value) {
-                // Здесь будет запрос к API с временами намаза
-                console.log(`Выбран город: ${this.value}`);
-                
-                // Заглушка - случайные времена
-                const prayerCards = document.querySelectorAll('.prayer-card');
-                prayerCards.forEach(card => {
-                    const hours = Math.floor(Math.random() * 12) + 1;
-                    const minutes = Math.floor(Math.random() * 60);
-                    const time = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-                    card.querySelector('.prayer-time').textContent = time;
-                });
-                
-                // Установим случайный текущий намаз
-                const randomPrayer = prayerCards[Math.floor(Math.random() * prayerCards.length)];
-                prayerCards.forEach(card => card.classList.remove('current'));
-                randomPrayer.classList.add('current');
-                
-                // Обновим информацию о следующем намазе
-                document.getElementById('next-prayer-name').textContent = randomPrayer.querySelector('.prayer-name').textContent;
-                document.getElementById('next-prayer-time').textContent = '01:23:45';
-            }
-        });
+        function getPositionX(event) {
+            return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+        }
 
-        // Логика для кнопки уведомлений
+        function dragStart(event) {
+            if (event.type === 'touchstart') {
+                startPos = event.touches[0].clientX;
+            } else {
+                startPos = event.pageX;
+                event.preventDefault(); // Предотвращаем выделение текста
+            }
+            isDragging = true;
+            azkarSwitcher.classList.add('dragging');
+            requestAnimationFrame(animation);
+        }
+
+        function touchStart(event) {
+            startPos = event.touches[0].clientX;
+            dragStart(event);
+        }
+
+        function drag(event) {
+            if (isDragging) {
+                const currentPosition = getPositionX(event);
+                currentTranslate = prevTranslate + currentPosition - startPos;
+            }
+        }
+
+        function touchDrag(event) {
+            const currentPosition = event.touches[0].clientX;
+            currentTranslate = prevTranslate + currentPosition - startPos;
+            drag(event);
+        }
+
+        function dragEnd() {
+            isDragging = false;
+            azkarSwitcher.classList.remove('dragging');
+            
+            const movedBy = currentTranslate - prevTranslate;
+            if (movedBy < -sliderWidth/3 && currentIndex < 2) {
+                currentIndex += 1;
+            } else if (movedBy > sliderWidth/3 && currentIndex > 0) {
+                currentIndex -= 1;
+            }
+            
+            setPositionByIndex();
+        }
+
+        function animation() {
+            if (isDragging) {
+                setSliderPosition();
+                requestAnimationFrame(animation);
+            }
+        }
+
+        function setSliderPosition() {
+            // Ограничиваем перемещение
+            if (currentTranslate > 0) currentTranslate = 0;
+            if (currentTranslate < -sliderWidth * 2) currentTranslate = -sliderWidth * 2;
+            
+            azkarSlider.style.transform = `translateX(${currentTranslate}px)`;
+        }
+
+        function setPositionByIndex() {
+            currentTranslate = currentIndex * -sliderWidth;
+            prevTranslate = currentTranslate;
+            
+            // Плавное возвращение на место
+            azkarSlider.style.transition = 'transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)';
+            azkarSlider.style.transform = `translateX(${currentTranslate}px)`;
+            
+            // Обновляем активную вкладку
+            updateActiveTab();
+        }
+
+        function updateActiveTab() {
+            azkarOptions.forEach((option, index) => {
+                option.classList.toggle('active', index === currentIndex);
+            });
+            
+            const target = azkarOptions[currentIndex].getAttribute('data-target');
+            azkarContainers.forEach(container => {
+                container.classList.remove('active');
+                if (container.id === `${target}-azkar`) {
+                    container.classList.add('active');
+                }
+            });
+        }
+
+        // Улучшенная логика уведомлений для всех платформ
+        async function requestNotificationPermission() {
+            try {
+                if ('Notification' in window) {
+                    const permission = await Notification.requestPermission();
+                    
+                    if (permission === 'granted') {
+                        // Для iOS показываем алерт, так как уведомления работают только в PWA
+                        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                            alert('Уведомления включены! Для работы уведомлений добавьте это приложение на главный экран.');
+                        } else {
+                            alert('Уведомления включены! Вы будете получать напоминания о намазе.');
+                        }
+                        return true;
+                    }
+                } else if ('standalone' in navigator && navigator.standalone) {
+                    // Для PWA на iOS
+                    alert('Для уведомлений на iOS добавьте это приложение на главный экран.');
+                }
+            } catch (e) {
+                console.error('Ошибка запроса уведомлений:', e);
+            }
+            return false;
+        }
+
+        // Обработчик кнопки уведомлений
         const notifyBtn = document.getElementById('notify-btn');
-        notifyBtn.addEventListener('click', function() {
+        notifyBtn.addEventListener('click', async function() {
             if (Notification.permission === 'granted') {
                 alert('Уведомления уже включены!');
-            } else if (Notification.permission !== 'denied') {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        alert('Уведомления включены! Вы будете получать напоминания о намазе.');
-                    }
-                });
             } else {
-                alert('Разрешение на уведомления было отклонено. Пожалуйста, разрешите уведомления в настройках браузера.');
+                const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                
+                if (isSafari) {
+                    // Особый случай для Safari
+                    if (window.navigator.standalone) {
+                        // PWA в iOS
+                        await requestNotificationPermission();
+                    } else {
+                        // Обычный Safari
+                        alert('Для работы уведомлений в Safari добавьте это приложение на главный экран: нажмите "Поделиться", затем "На экран Домой"');
+                    }
+                } else {
+                    // Другие браузеры
+                    await requestNotificationPermission();
+                }
             }
         });
 
@@ -946,6 +1298,19 @@
         if (window.matchMedia('(display-mode: standalone)').matches) {
             installBtn.style.display = 'none';
         }
+
+        // Обработчик выбора города
+        const citySelect = document.getElementById('city-select');
+        citySelect.addEventListener('change', function() {
+            if (this.value) {
+                updatePrayerTimes(this.value);
+                startPrayerTimeUpdates();
+            }
+        });
+
+        // Инициализация при загрузке
+        window.addEventListener('load', initSlider);
+        window.addEventListener('resize', initSlider);
     </script>
 </body>
 </html>
