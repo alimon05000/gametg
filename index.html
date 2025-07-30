@@ -805,7 +805,7 @@
         <div class="azkar-container" id="evening-azkar">
             <!-- Вечерние азкары -->
             <div class="azkar-item">
-                <div class="azkar-text">أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div>
+                <div class="azkar-text">أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ мā بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div>
                 <div class="azkar-translation">"Мы дожили до вечера, и власть принадлежит Аллаху, и хвала Аллаху. Нет божества, кроме одного лишь Аллаха, у Которого нет сотоварища. Ему принадлежит власть, и Ему хвала, и Он над всякой вещью мощен. Господь, я прошу у Тебя блага этой ночи и блага того, что после неё, и прибегаю к Тебе от зла этой ночи и зла того, что после неё. Господь, я прибегаю к Тебе от лени и дряхлости в старости. Господь, я прибегаю к Тебе от мучений в Огне и мучений в могиле".</div>
                 <div class="azkar-reference">Муслим 2723</div>
             </div>
@@ -1196,17 +1196,6 @@
                         console.log('ServiceWorker registration successful');
                         // Проверяем, поддерживает ли браузер PWA установку
                         checkPWAInstallable();
-                        
-                        // Периодическая синхронизация для фоновых уведомлений
-                        if ('periodicSync' in reg) {
-                            reg.periodicSync.register('prayer-times', {
-                                minInterval: 12 * 60 * 60 * 1000 // 12 часов
-                            }).then(() => {
-                                console.log('Periodic sync registered');
-                            }).catch(err => {
-                                console.log('Periodic sync registration failed:', err);
-                            });
-                        }
                     })
                     .catch(err => console.log('ServiceWorker registration failed: ', err));
             });
@@ -1328,23 +1317,32 @@
                 if (notificationTime > 0) {
                     setTimeout(() => {
                         showPrayerNotification(prayer);
-                    // Для фоновых уведомлений используем service worker
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.ready.then(reg => {
-                            reg.showNotification('Время намаза', {
-                                body: `Скоро время намаза ${getPrayerName(prayer)}`,
-                                icon: 'https://img.icons8.com/ios/512/islamic/prayer.png',
-                                vibrate: [200, 100, 200, 100, 200],
-                                tag: `prayer-${prayer}`,
-                                data: {
-                                    prayer: prayer,
-                                    time: time
-                                }
-                            });
-                        });
-                    }
                     }, notificationTime * 60000);
                 }
+            }
+        }
+        
+        function showPrayerNotification(prayer) {
+            // Воспроизводим соответствующий азан
+            if (prayer === 'fajr') {
+                fajrAdhan.play().catch(e => console.log('Не удалось воспроизвести азан фаджр:', e));
+            } else {
+                standardAdhan.play().catch(e => console.log('Не удалось воспроизвести стандартный азан:', e));
+            }
+            
+            // Показываем уведомление через service worker
+            if ('serviceWorker' in navigator && Notification.permission === 'granted') {
+                navigator.serviceWorker.ready.then(reg => {
+                    reg.showNotification('Время намаза', {
+                        body: `Скоро время намаза ${getPrayerName(prayer)}`,
+                        icon: 'https://img.icons8.com/ios/512/islamic/prayer.png',
+                        vibrate: [200, 100, 200, 100, 200],
+                        tag: `prayer-${prayer}`,
+                        data: {
+                            prayer: prayer
+                        }
+                    });
+                });
             }
         }
         
@@ -1357,15 +1355,6 @@
                 'isha': 'Иша'
             };
             return names[prayer] || prayer;
-        }
-        
-        function showPrayerNotification(prayer) {
-            // Воспроизводим соответствующий азан
-            if (prayer === 'fajr') {
-                fajrAdhan.play().catch(e => console.log('Не удалось воспроизвести азан фаджр:', e));
-            } else {
-                standardAdhan.play().catch(e => console.log('Не удалось воспроизвести стандартный азан:', e));
-            }
         }
         
         notifyBtn.addEventListener('click', async () => {
@@ -1411,16 +1400,50 @@
             }
         });
 
-        // При загрузке страницы восстанавливаем выбранный город
+        // Инициализация при загрузке страницы
         window.addEventListener('load', () => {
+            // Восстанавливаем выбранный город
             const savedCity = localStorage.getItem('selectedCity');
             if (savedCity) {
                 document.getElementById('city-select').value = savedCity;
                 updatePrayerTimes(savedCity);
             }
             
+            // Инициализируем слайдер
             initSlider();
+            
+            // Запускаем обновление времени
             startPrayerTimeUpdates();
+            
+            // Проверяем состояние уведомлений
+            if (Notification.permission === 'granted') {
+                const city = document.getElementById('city-select').value;
+                if (city) {
+                    setupPrayerNotifications(city);
+                }
+            }
+        });
+
+        // Обработчик изменения города
+        document.getElementById('city-select').addEventListener('change', async function() {
+            if (this.value) {
+                await updatePrayerTimes(this.value);
+                
+                // Обновление в полночь
+                const now = new Date();
+                const midnight = new Date(
+                    now.getFullYear(),
+                    now.getMonth(),
+                    now.getDate() + 1,
+                    0, 0, 0
+                );
+                const timeToMidnight = midnight - now;
+                
+                setTimeout(() => {
+                    updatePrayerTimes(this.value);
+                    setInterval(() => updatePrayerTimes(this.value), 86400000);
+                }, timeToMidnight);
+            }
         });
     </script>
 </body>
