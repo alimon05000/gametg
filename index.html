@@ -586,6 +586,12 @@
         .notify-btn:hover::before {
             left: 100%;
         }
+
+        .notify-btn.active {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.3);
+            color: #fff;
+        }
         
         .install-btn {
             background: linear-gradient(
@@ -805,7 +811,7 @@
         <div class="azkar-container" id="evening-azkar">
             <!-- Вечерние азкары -->
             <div class="azkar-item">
-                <div class="azkar-text">أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ мā بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div>
+                <div class="azkar-text">أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div>
                 <div class="azkar-translation">"Мы дожили до вечера, и власть принадлежит Аллаху, и хвала Аллаху. Нет божества, кроме одного лишь Аллаха, у Которого нет сотоварища. Ему принадлежит власть, и Ему хвала, и Он над всякой вещью мощен. Господь, я прошу у Тебя блага этой ночи и блага того, что после неё, и прибегаю к Тебе от зла этой ночи и зла того, что после неё. Господь, я прибегаю к Тебе от лени и дряхлости в старости. Господь, я прибегаю к Тебе от мучений в Огне и мучений в могиле".</div>
                 <div class="azkar-reference">Муслим 2723</div>
             </div>
@@ -851,7 +857,7 @@
             
             <div class="azkar-item">
                 <div class="azkar-text">لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
-                <div class="azkar-translation">"Нет божества, кроме одного лишь Аллаха, у Которого нет сотоварища. Ему принадлежит властво, и Ему хвала, и Он над всякой вещью мощен" (10 раз после утреннего и послеполуденного намаза)</div>
+                <div class="azkar-translation">"Нет божества, кроме одного лишь Аллаха, у Которого нет сотоварища. Ему принадлежит власть, и Ему хвала, и Он над всякой вещью мощен" (10 раз после утреннего и послеполуденного намаза)</div>
                 <div class="azkar-reference">Ахмад 4/227</div>
             </div>
         </div>
@@ -1188,19 +1194,26 @@
             });
         }
 
-        // PWA функционал
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => {
-                        console.log('ServiceWorker registration successful');
-                        // Проверяем, поддерживает ли браузер PWA установку
-                        checkPWAInstallable();
-                    })
-                    .catch(err => console.log('ServiceWorker registration failed: ', err));
-            });
+        // Проверка возможностей браузера
+        function checkBrowserCapabilities() {
+            if (!('serviceWorker' in navigator)) {
+                console.warn('Service Worker не поддерживается');
+                return false;
+            }
+            
+            if (!('Notification' in window)) {
+                console.warn('Уведомления не поддерживаются');
+                return false;
+            }
+            
+            if (!('periodicSync' in navigator.serviceWorker)) {
+                console.warn('Фоновая синхронизация не поддерживается');
+            }
+            
+            return true;
         }
 
+        // PWA функционал
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');
 
@@ -1209,17 +1222,21 @@
             if (window.matchMedia('(display-mode: standalone)').matches) {
                 // Уже установлено
                 installBtn.style.display = 'none';
-            } else if (isIOS()) {
-                // iOS не поддерживает PWA установку через beforeinstallprompt
-                installBtn.style.display = 'none';
-            } else {
-                // Проверяем, может ли браузер установить PWA
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    deferredPrompt = e;
-                    installBtn.style.display = 'block';
-                });
+                return;
             }
+            
+            // Для iOS показываем инструкцию вместо кнопки
+            if (isIOS()) {
+                installBtn.style.display = 'none';
+                return;
+            }
+            
+            // Для Android и других поддерживающих PWA платформ
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.style.display = 'block';
+            });
         }
 
         installBtn.addEventListener('click', async () => {
@@ -1252,26 +1269,21 @@
         }
         
         async function setupPrayerNotifications(city) {
-            if (!('Notification' in window)) {
-                console.log('Браузер не поддерживает уведомления');
-                return;
-            }
+            if (!checkBrowserCapabilities()) return;
             
             if (Notification.permission === 'granted') {
                 await schedulePrayerNotifications(city);
                 
                 // Регистрируем фоновую синхронизацию
-                if ('serviceWorker' in navigator) {
-                    const reg = await navigator.serviceWorker.ready;
-                    if ('periodicSync' in reg) {
-                        try {
-                            await reg.periodicSync.register('prayer-times', {
-                                minInterval: 12 * 60 * 60 * 1000 // 12 часов
-                            });
-                            console.log('Фоновая синхронизация зарегистрирована');
-                        } catch (e) {
-                            console.log('Ошибка регистрации фоновой синхронизации:', e);
-                        }
+                if ('serviceWorker' in navigator && 'periodicSync' in navigator.serviceWorker) {
+                    try {
+                        const reg = await navigator.serviceWorker.ready;
+                        await reg.periodicSync.register('prayer-times', {
+                            minInterval: 12 * 60 * 60 * 1000 // 12 часов
+                        });
+                        console.log('Фоновая синхронизация зарегистрирована');
+                    } catch (e) {
+                        console.log('Ошибка регистрации фоновой синхронизации:', e);
                     }
                 }
             }
@@ -1357,70 +1369,75 @@
             return names[prayer] || prayer;
         }
         
+        async function handleNotificationPermission() {
+            let permission = Notification.permission;
+            
+            if (permission === 'default') {
+                permission = await Notification.requestPermission();
+            }
+            
+            if (permission === 'granted') {
+                const city = document.getElementById('city-select').value;
+                if (city) {
+                    await setupPrayerNotifications(city);
+                    notifyBtn.textContent = 'Уведомления включены';
+                    notifyBtn.classList.add('active');
+                } else {
+                    alert('Пожалуйста, сначала выберите город');
+                }
+            } else {
+                alert('Для работы уведомлений необходимо разрешение. Пожалуйста, разрешите уведомления в настройках браузера.');
+            }
+        }
+
         notifyBtn.addEventListener('click', async () => {
             if (isIOS()) {
                 if (window.navigator.standalone) {
-                    const permission = await Notification.requestPermission();
-                    if (permission === 'granted') {
-                        const city = document.getElementById('city-select').value;
-                        if (city) {
-                            await schedulePrayerNotifications(city);
-                            alert('Уведомления включены! Вы будете получать напоминания о намазе с азаном.');
-                        } else {
-                            alert('Пожалуйста, сначала выберите город');
-                        }
-                    }
+                    await handleNotificationPermission();
                 } else {
                     showIOSNotificationAlert();
                 }
                 return;
             }
             
-            if (Notification.permission === 'granted') {
-                const city = document.getElementById('city-select').value;
-                if (city) {
-                    await schedulePrayerNotifications(city);
-                    alert('Уведомления о намазе включены! Вы будете получать напоминания с азаном.');
-                } else {
-                    alert('Пожалуйста, сначала выберите город');
-                }
-            } else if (Notification.permission !== 'denied') {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    const city = document.getElementById('city-select').value;
-                    if (city) {
-                        await schedulePrayerNotifications(city);
-                        alert('Уведомления включены! Вы будете получать напоминания о намазе с азаном.');
-                    } else {
-                        alert('Пожалуйста, сначала выберите город');
-                    }
-                }
-            } else {
-                alert('Разрешение на уведомления было отклонено. Пожалуйста, разрешите уведомления в настройках браузера.');
-            }
+            await handleNotificationPermission();
         });
 
         // Инициализация при загрузке страницы
-        window.addEventListener('load', () => {
-            // Восстанавливаем выбранный город
+        document.addEventListener('DOMContentLoaded', () => {
+            // Восстанавливаем выбранный город сразу после загрузки DOM
+            const citySelect = document.getElementById('city-select');
             const savedCity = localStorage.getItem('selectedCity');
+            
             if (savedCity) {
-                document.getElementById('city-select').value = savedCity;
-                updatePrayerTimes(savedCity);
+                citySelect.value = savedCity;
+                // Запускаем обновление времен намаза без ожидания полной загрузки страницы
+                updatePrayerTimes(savedCity).then(() => {
+                    startPrayerTimeUpdates();
+                });
             }
             
             // Инициализируем слайдер
             initSlider();
             
-            // Запускаем обновление времени
-            startPrayerTimeUpdates();
-            
             // Проверяем состояние уведомлений
             if (Notification.permission === 'granted') {
-                const city = document.getElementById('city-select').value;
+                const city = citySelect.value;
                 if (city) {
                     setupPrayerNotifications(city);
+                    notifyBtn.textContent = 'Уведомления включены';
+                    notifyBtn.classList.add('active');
                 }
+            }
+            
+            // Проверяем PWA установку
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => {
+                        console.log('ServiceWorker registration successful');
+                        checkPWAInstallable();
+                    })
+                    .catch(err => console.log('ServiceWorker registration failed: ', err));
             }
         });
 
