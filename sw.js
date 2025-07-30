@@ -43,18 +43,23 @@ self.addEventListener('periodicsync', event => {
 });
 
 self.addEventListener('notificationclick', event => {
+  const prayer = event.notification.data.prayer;
   event.notification.close();
+  
+  // Воспроизводим азан
+  const audioUrl = prayer === 'fajr' ? 
+    'https://www.islamcan.com/audio/adhan/fajr.mp3' :
+    'https://www.islamcan.com/audio/adhan/standard.mp3';
+  
   event.waitUntil(
-    clients.matchAll({type: 'window'})
-      .then(clientList => {
-        for (const client of clientList) {
-          if (client.url === '/' && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        if (clients.openWindow) {
-          return clients.openWindow('/');
-        }
+    clients.openWindow('/')
+      .then(() => {
+        return fetch(audioUrl)
+          .then(response => response.blob())
+          .then(blob => {
+            const audio = new Audio(URL.createObjectURL(blob));
+            return audio.play();
+          });
       })
   );
 });
@@ -99,25 +104,3 @@ function getPrayerName(prayer) {
   };
   return names[prayer] || prayer;
 }
-
-self.addEventListener('notificationclick', event => {
-  const prayer = event.notification.data.prayer;
-  event.notification.close();
-  
-  // Воспроизводим азан
-  const audioUrl = prayer === 'fajr' ? 
-    'https://www.islamcan.com/audio/adhan/fajr.mp3' :
-    'https://www.islamcan.com/audio/adhan/standard.mp3';
-  
-  event.waitUntil(
-    clients.openWindow('/')
-      .then(() => {
-        return fetch(audioUrl)
-          .then(response => response.blob())
-          .then(blob => {
-            const audio = new Audio(URL.createObjectURL(blob));
-            return audio.play();
-          });
-      })
-  );
-});
