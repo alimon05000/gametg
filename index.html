@@ -936,6 +936,8 @@
                 <option value="krasnoyarsk">Красноярск</option>
                 <option value="khasavyurt">Хасавюрт</option>
                 <option value="belidzhi">Белиджи</option>
+                <option value="ahty">Ахты</option>
+                <option value="kabir">Кабир</option>
             </select>
         </div>
         
@@ -1112,7 +1114,7 @@
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
             
-            // Координаты городов (добавлены Хасавюрт и Белиджи)
+            // Координаты городов (добавлены Хасавюрт, Белиджи, Ахты и Кабир)
             const cities = {
                 'moscow': { lat: 55.7558, lng: 37.6176, method: 3 },
                 'saint-petersburg': { lat: 59.9343, lng: 30.3351, method: 3 },
@@ -1122,8 +1124,10 @@
                 'grozny': { lat: 43.3180, lng: 45.6982, method: 1 },
                 'novosibirsk': { lat: 55.0084, lng: 82.9357, method: 3 },
                 'krasnoyarsk': { lat: 56.0153, lng: 92.8932, method: 3 },
-                'khasavyurt': { lat: 43.2509, lng: 46.5877, method: 1 }, // Хасавюрт
-                'belidzhi': { lat: 42.1333, lng: 48.0667, method: 1 }    // Белиджи
+                'khasavyurt': { lat: 43.2509, lng: 46.5877, method: 1 },
+                'belidzhi': { lat: 42.1333, lng: 48.0667, method: 1 },
+                'ahty': { lat: 41.4647, lng: 47.7408, method: 1 },
+                'kabir': { lat: 41.5667, lng: 47.8333, method: 1 }
             };
             
             const { lat, lng, method } = cities[city];
@@ -1156,7 +1160,7 @@
             return timeStr.split(' ')[0];
         }
 
-        // Резервные времена намаза (добавлены Хасавюрт и Белиджи)
+        // Резервные времена намаза (добавлены Хасавюрт, Белиджи, Ахты и Кабир)
         function getFallbackTimes(city) {
             const times = {
                 'moscow': {
@@ -1238,6 +1242,22 @@
                     asr: '15:35',
                     maghrib: '19:00',
                     isha: '20:45'
+                },
+                'ahty': {
+                    fajr: '03:10',
+                    sunrise: '05:05',
+                    dhuhr: '12:00',
+                    asr: '15:30',
+                    maghrib: '18:55',
+                    isha: '20:40'
+                },
+                'kabir': {
+                    fajr: '03:05',
+                    sunrise: '05:00',
+                    dhuhr: '12:00',
+                    asr: '15:30',
+                    maghrib: '18:55',
+                    isha: '20:40'
                 }
             };
             return times[city] || times['moscow'];
@@ -1270,24 +1290,34 @@
             let nextPrayer = null;
             let minDiff = Infinity;
 
+            // Сначала снимаем выделение со всех карточек
             document.querySelectorAll('.prayer-card').forEach(card => {
                 card.classList.remove('current');
+            });
+
+            // Затем находим текущий намаз и следующий
+            document.querySelectorAll('.prayer-card').forEach(card => {
                 const timeStr = card.querySelector('.prayer-time').textContent;
                 const [hours, minutes] = timeStr.split(':').map(Number);
                 let prayerTime = hours * 60 + minutes;
                 let diff = prayerTime - currentTime;
 
-                if (diff < 0) diff += 1440;
+                // Если разница отрицательная, значит время уже прошло сегодня
+                if (diff < 0) diff += 1440; // Добавляем 24 часа в минутах
+                
+                // Находим следующий намаз (с минимальной положительной разницей)
                 if (diff < minDiff) {
                     minDiff = diff;
                     nextPrayer = card;
                 }
 
+                // Если текущее время в пределах 5 минут от времени намаза - подсвечиваем
                 if (Math.abs(prayerTime - currentTime) <= 5 || Math.abs(prayerTime + 1440 - currentTime) <= 5) {
                     card.classList.add('current');
                 }
             });
 
+            // Обновляем информацию о следующем намазе
             if (nextPrayer) {
                 const name = nextPrayer.querySelector('.prayer-name').textContent;
                 document.getElementById('next-prayer-name').textContent = name;
@@ -1326,6 +1356,10 @@
             currentTranslate = currentIndex * sliderWidth;
             prevTranslate = currentTranslate;
             azkarSlider.style.transform = `translateX(${currentTranslate}px)`;
+            
+            // Улучшаем видимость слайдера
+            azkarSlider.style.boxShadow = '0 4px 15px rgba(var(--gold-rgb), 0.3)';
+            azkarSlider.style.border = '1px solid rgba(var(--gold-rgb), 0.5)';
         }
 
         azkarSwitcher.addEventListener('mousedown', dragStart);
@@ -1747,30 +1781,59 @@
     <!-- Service Worker Script (inline for demo purposes) -->
     <script id="sw-script" type="text/javascript">
         // Этот код будет использоваться для создания файла sw.js
-        const CACHE_NAME = 'prayer-times-v1';
+        const CACHE_NAME = 'prayer-times-v2';
         const ASSETS_TO_CACHE = [
             '/',
             '/index.html',
-            'https://img.icons8.com/ios/512/islamic/prayer.png'
+            'https://img.icons8.com/ios/512/islamic/prayer.png',
+            'https://www.islamcan.com/audio/adhan/fajr.mp3',
+            'https://www.islamcan.com/audio/adhan/standard.mp3'
         ];
 
         self.addEventListener('install', (event) => {
             event.waitUntil(
                 caches.open(CACHE_NAME)
-                    .then((cache) => cache.addAll(ASSETS_TO_CACHE))
+                    .then((cache) => {
+                        console.log('Кэширование ресурсов');
+                        return cache.addAll(ASSETS_TO_CACHE);
+                    })
                     .then(() => self.skipWaiting())
             );
         });
 
         self.addEventListener('activate', (event) => {
-            event.waitUntil(self.clients.claim());
+            // Удаляем старые кэши
+            event.waitUntil(
+                caches.keys().then(cacheNames => {
+                    return Promise.all(
+                        cacheNames.map(cache => {
+                            if (cache !== CACHE_NAME) {
+                                console.log('Удаляем старый кэш:', cache);
+                                return caches.delete(cache);
+                            }
+                        })
+                    );
+                }).then(() => {
+                    console.log('Активирован новый Service Worker');
+                    return self.clients.claim();
+                })
+            );
         });
 
         self.addEventListener('fetch', (event) => {
-            event.respondWith(
-                caches.match(event.request)
-                    .then((response) => response || fetch(event.request))
-            );
+            // Для PWA на Android - перехватываем все запросы к index.html
+            if (event.request.mode === 'navigate') {
+                event.respondWith(
+                    caches.match('/index.html')
+                        .then(response => response || fetch(event.request))
+                        .catch(() => caches.match('/index.html'))
+                );
+            } else {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(response => response || fetch(event.request))
+                );
+            }
         });
 
         let prayerTimes = {};
