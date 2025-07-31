@@ -19,6 +19,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap');
         
         :root {
+            /* Основные цвета темы по умолчанию (Изумрудная) */
             --primary-dark: #051a12;
             --primary-color: #0d5e3f;
             --secondary-color: #f0e6d2;
@@ -38,6 +39,46 @@
                 rgba(255, 255, 255, 0) 55%,
                 rgba(255, 255, 255, 0.03) 100%
             );
+            --theme-name: "Изумрудная";
+        }
+
+        /* Сапфировая тема */
+        .theme-sapphire {
+            --primary-dark: #0a1026;
+            --primary-color: #1a3a8f;
+            --secondary-color: #e0e7ff;
+            --gold-color: #8a9eff;
+            --current-prayer-color: #5d8aff;
+            --glass-bg: rgba(10, 16, 38, 0.18);
+            --glass-border: rgba(138, 158, 255, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --theme-name: "Сапфировая";
+        }
+
+        /* Бордовая тема */
+        .theme-burgundy {
+            --primary-dark: #1a0a12;
+            --primary-color: #6e1d45;
+            --secondary-color: #ffd6e7;
+            --gold-color: #d48a9e;
+            --current-prayer-color: #c44569;
+            --glass-bg: rgba(26, 10, 18, 0.18);
+            --glass-border: rgba(212, 138, 158, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.07);
+            --theme-name: "Бордовая";
+        }
+
+        /* Янтарная тема */
+        .theme-amber {
+            --primary-dark: #1a1205;
+            --primary-color: #8f6a1a;
+            --secondary-color: #fff4e0;
+            --gold-color: #ffc96b;
+            --current-prayer-color: #ffaa33;
+            --glass-bg: rgba(26, 18, 5, 0.18);
+            --glass-border: rgba(255, 201, 107, 0.12);
+            --card-bg: rgba(255, 255, 255, 0.09);
+            --theme-name: "Янтарная";
         }
         
         * {
@@ -57,6 +98,7 @@
             align-items: center;
             overflow-x: hidden;
             perspective: 1000px;
+            transition: all 0.5s ease;
         }
         
         .liquid-bg {
@@ -66,20 +108,22 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 30%, rgba(13, 94, 63, 0.1) 0%, transparent 25%),
-                radial-gradient(circle at 80% 70%, rgba(201, 167, 105, 0.08) 0%, transparent 25%);
+                radial-gradient(circle at 20% 30%, rgba(var(--primary-rgb), 0.1) 0%, transparent 25%),
+                radial-gradient(circle at 80% 70%, rgba(var(--gold-rgb), 0.08) 0%, transparent 25%);
             z-index: 0;
             overflow: hidden;
+            transition: all 0.5s ease;
         }
         
         .liquid-element {
             position: absolute;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(201, 167, 105, 0.08), transparent 70%);
+            background: radial-gradient(circle, rgba(var(--gold-rgb), 0.08), transparent 70%);
             filter: blur(60px);
             opacity: 0.3;
             animation: float 15s infinite linear;
             z-index: -1;
+            transition: all 0.5s ease;
         }
         
         @keyframes float {
@@ -131,7 +175,7 @@
             font-size: clamp(1.8rem, 4vw, 2.8rem);
             margin-bottom: 20px;
             color: var(--gold-color);
-            text-shadow: 0 2px 10px rgba(201, 167, 105, 0.2);
+            text-shadow: 0 2px 10px rgba(var(--gold-rgb), 0.2);
             letter-spacing: 1px;
             position: relative;
             font-weight: 700;
@@ -165,8 +209,8 @@
             width: 100%;
             padding: 14px 20px;
             font-size: 1rem;
-            background: rgba(13, 94, 63, 0.25);
-            border: 1px solid rgba(201, 167, 105, 0.25);
+            background: rgba(var(--primary-rgb), 0.25);
+            border: 1px solid rgba(var(--gold-rgb), 0.25);
             border-radius: 12px;
             color: var(--text-light);
             cursor: pointer;
@@ -181,7 +225,7 @@
         }
         
         select:hover {
-            background: rgba(13, 94, 63, 0.35);
+            background: rgba(var(--primary-rgb), 0.35);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
         
@@ -257,26 +301,26 @@
         .prayer-card.current {
             background: linear-gradient(
                 135deg,
-                rgba(76, 175, 80, 0.2),
-                rgba(13, 94, 63, 0.3)
+                rgba(var(--current-prayer-rgb), 0.2),
+                rgba(var(--primary-rgb), 0.3)
             );
-            border-color: rgba(76, 175, 80, 0.3);
+            border-color: rgba(var(--current-prayer-rgb), 0.3);
             box-shadow: 
-                0 0 25px rgba(76, 175, 80, 0.25),
-                inset 0 0 16px rgba(76, 175, 80, 0.1);
+                0 0 25px rgba(var(--current-prayer-rgb), 0.25),
+                inset 0 0 16px rgba(var(--current-prayer-rgb), 0.1);
             animation: pulseGlow 3s infinite alternate;
         }
         
         @keyframes pulseGlow {
             0% { 
                 box-shadow: 
-                    0 0 15px rgba(76, 175, 80, 0.25),
-                    inset 0 0 16px rgba(76, 175, 80, 0.1);
+                    0 0 15px rgba(var(--current-prayer-rgb), 0.25),
+                    inset 0 0 16px rgba(var(--current-prayer-rgb), 0.1);
             }
             100% { 
                 box-shadow: 
-                    0 0 30px rgba(76, 175, 80, 0.4),
-                    inset 0 0 16px rgba(76, 175, 80, 0.2);
+                    0 0 30px rgba(var(--current-prayer-rgb), 0.4),
+                    inset 0 0 16px rgba(var(--current-prayer-rgb), 0.2);
             }
         }
         
@@ -317,7 +361,7 @@
         .next-prayer-info {
             margin: 20px 0;
             padding: 16px;
-            background: rgba(13, 94, 63, 0.25);
+            background: rgba(var(--primary-rgb), 0.25);
             border-radius: 16px;
             border: 1px solid var(--glass-border);
             font-size: 1rem;
@@ -353,6 +397,68 @@
             font-size: 1.2rem;
         }
         
+        /* Переключатель тем */
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+        
+        .theme-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-btn::after {
+            content: attr(data-theme);
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s ease;
+            color: var(--text-light);
+        }
+        
+        .theme-btn:hover::after {
+            bottom: -25px;
+            opacity: 1;
+        }
+        
+        .theme-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px var(--gold-color);
+        }
+        
+        /* Цвета кнопок тем */
+        .theme-btn[data-theme="emerald"] {
+            background: linear-gradient(135deg, #0d5e3f, #0a1e15);
+        }
+        
+        .theme-btn[data-theme="sapphire"] {
+            background: linear-gradient(135deg, #1a3a8f, #0a1026);
+        }
+        
+        .theme-btn[data-theme="burgundy"] {
+            background: linear-gradient(135deg, #6e1d45, #1a0a12);
+        }
+        
+        .theme-btn[data-theme="amber"] {
+            background: linear-gradient(135deg, #8f6a1a, #1a1205);
+        }
+        
         /* Улучшенный слайдер азкаров */
         .azkar-switcher {
             position: relative;
@@ -360,7 +466,7 @@
             width: 90%;
             max-width: 400px;
             height: 60px;
-            background: rgba(13, 94, 63, 0.2);
+            background: rgba(var(--primary-rgb), 0.2);
             border-radius: 30px;
             border: 1px solid var(--glass-border);
             box-shadow: 
@@ -403,12 +509,12 @@
             height: calc(100% - 10px);
             background: linear-gradient(
                 135deg,
-                rgba(201, 167, 105, 0.3),
-                rgba(201, 167, 105, 0.2)
+                rgba(var(--gold-rgb), 0.3),
+                rgba(var(--gold-rgb), 0.2)
             );
             border-radius: 25px;
             box-shadow: 
-                0 4px 20px rgba(201, 167, 105, 0.2),
+                0 4px 20px rgba(var(--gold-rgb), 0.2),
                 inset 0 0 10px rgba(255, 255, 255, 0.1);
             transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
             z-index: 1;
@@ -436,7 +542,7 @@
             display: none;
             margin: 20px 0;
             padding: 20px;
-            background: rgba(5, 26, 18, 0.3);
+            background: rgba(var(--primary-dark-rgb), 0.3);
             border-radius: 20px;
             border: 1px solid var(--glass-border);
             box-shadow: var(--glass-shadow);
@@ -544,9 +650,9 @@
         }
         
         .notify-btn {
-            background: rgba(201, 167, 105, 0.15);
+            background: rgba(var(--gold-rgb), 0.15);
             color: var(--gold-color);
-            border: 1px solid rgba(201, 167, 105, 0.3);
+            border: 1px solid rgba(var(--gold-rgb), 0.3);
             padding: 14px 32px;
             font-size: 1rem;
             border-radius: 50px;
@@ -576,9 +682,9 @@
         }
         
         .notify-btn:hover {
-            background: rgba(201, 167, 105, 0.25);
+            background: rgba(var(--gold-rgb), 0.25);
             box-shadow: 
-                0 6px 25px rgba(201, 167, 105, 0.2),
+                0 6px 25px rgba(var(--gold-rgb), 0.2),
                 inset 0 0 16px rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
         }
@@ -588,16 +694,16 @@
         }
 
         .notify-btn.active {
-            background: rgba(76, 175, 80, 0.2);
-            border-color: rgba(76, 175, 80, 0.3);
+            background: rgba(var(--current-prayer-rgb), 0.2);
+            border-color: rgba(var(--current-prayer-rgb), 0.3);
             color: #fff;
         }
         
         .install-btn {
             background: linear-gradient(
                 135deg,
-                rgba(201, 167, 105, 0.8),
-                rgba(201, 167, 105, 0.6)
+                rgba(var(--gold-rgb), 0.8),
+                rgba(var(--gold-rgb), 0.6)
             );
             color: var(--text-dark);
             border: none;
@@ -608,7 +714,7 @@
             margin: 10px auto;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: 
-                0 4px 20px rgba(201, 167, 105, 0.3),
+                0 4px 20px rgba(var(--gold-rgb), 0.3),
                 inset 0 0 12px rgba(255, 255, 255, 0.2);
             font-weight: bold;
             position: relative;
@@ -632,7 +738,7 @@
         
         .install-btn:hover {
             box-shadow: 
-                0 6px 25px rgba(201, 167, 105, 0.4),
+                0 6px 25px rgba(var(--gold-rgb), 0.4),
                 inset 0 0 16px rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
@@ -665,6 +771,17 @@
             .notify-btn, .install-btn {
                 padding: 12px 24px;
                 font-size: 0.9rem;
+            }
+
+            .theme-switcher {
+                top: 10px;
+                right: 10px;
+                gap: 5px;
+            }
+            
+            .theme-btn {
+                width: 30px;
+                height: 30px;
             }
         }
         
@@ -710,6 +827,14 @@
 </head>
 <body>
     <div class="liquid-bg" id="liquid-bg"></div>
+    
+    <!-- Переключатель тем -->
+    <div class="theme-switcher">
+        <div class="theme-btn active" data-theme="emerald" data-theme-class=""></div>
+        <div class="theme-btn" data-theme="sapphire" data-theme-class="theme-sapphire"></div>
+        <div class="theme-btn" data-theme="burgundy" data-theme-class="theme-burgundy"></div>
+        <div class="theme-btn" data-theme="amber" data-theme-class="theme-amber"></div>
+    </div>
     
     <div class="container">
         <h1>Точные времена намаза</h1>
@@ -813,7 +938,7 @@
         <div class="azkar-container" id="evening-azkar">
             <!-- Вечерние азкары -->
             <div class="azkar-item">
-                <div class="azkar-text">أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div>
+                <div class="azkar-text">أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ мā بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div>
                 <div class="azkar-translation">"Мы дожили до вечера, и власть принадлежит Аллаху, и хвала Аллаху. Нет божества, кроме одного лишь Аллаха, у Которого нет сотоварища. Ему принадлежит власть, и Ему хвала, и Он над всякой вещью мощен. Господь, я прошу у Тебя блага этой ночи и блага того, что после неё, и прибегаю к Тебе от зла этой ночи и зла того, что после неё. Господь, я прибегаю к Тебе от лени и дряхлости в старости. Господь, я прибегаю к Тебе от мучений в Огне и мучений в могиле".</div>
                 <div class="azkar-reference">Муслим 2723</div>
             </div>
@@ -1215,6 +1340,29 @@
             });
         }
 
+        // Переключение тем
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        
+        themeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Удаляем все классы тем
+                document.body.classList.remove('theme-sapphire', 'theme-burgundy', 'theme-amber');
+                
+                // Добавляем выбранную тему
+                const themeClass = this.getAttribute('data-theme-class');
+                if (themeClass) {
+                    document.body.classList.add(themeClass);
+                }
+                
+                // Обновляем активную кнопку
+                themeButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Сохраняем тему в localStorage
+                localStorage.setItem('selectedTheme', themeClass);
+            });
+        });
+
         // Проверка возможностей браузера
         function checkBrowserCapabilities() {
             if (!('serviceWorker' in navigator)) {
@@ -1436,6 +1584,13 @@
                 updatePrayerTimes(savedCity).then(() => {
                     startPrayerTimeUpdates();
                 });
+            }
+            
+            // Восстанавливаем сохраненную тему
+            const savedTheme = localStorage.getItem('selectedTheme');
+            if (savedTheme) {
+                document.body.classList.add(savedTheme);
+                document.querySelector(`.theme-btn[data-theme-class="${savedTheme}"]`).classList.add('active');
             }
             
             // Инициализируем слайдер
