@@ -11,7 +11,11 @@
     <meta name="description" content="Точные времена намаза с утренними и вечерними азкарами">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="data:application/json;charset=utf-8;base64,ewogICJuYW1lIjogItCY0LfQvNC10YfQtdC90LjQtSDQstGC0L7QvNGD0YHQsCDQvdCw0LzQv9Cw0YAiLAogICJzaG9ydF9uYW1lIjogItCd0LDQvNCw0YAiLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA1MWExMiIsCiAgInRoZW1lX2NvbG9yIjogIiMwZDVlM2YiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2ltZy5pY29ucy5jb20vaWNvbnMyL2lzbGFtaWMvMjU2L3ByYXllci5wbmciLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIKICAgIH0sCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9pbWcuaWNvbnMuY29tL2ljb25zMi9pc2xhbWljLzUxMi9wcmF5ZXIucG5nIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9CiAgXQp9">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="icons/apple-icon-180.png">
+    <link rel="apple-touch-startup-image" href="icons/apple-splash-2048-2732.jpg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
     
     <title>Точные времена намаза</title>
     <style>
@@ -108,7 +112,8 @@
             perspective: 1000px;
             transition: all 0.5s ease;
             position: relative;
-            padding-top: 60px; /* Добавлено для PWA */
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
         }
         
         /* Узор фона для темы */
@@ -424,7 +429,7 @@
         /* Переключатель тем - исправлено для PWA */
         .theme-switcher {
             position: fixed;
-            top: 10px;
+            top: calc(10px + env(safe-area-inset-top, 0px));
             right: 10px;
             display: flex;
             gap: 8px;
@@ -751,10 +756,10 @@
                 rgba(var(--gold-rgb), 0.8),
                 rgba(var(--gold-rgb), 0.6)
             );
-            color: var(--text-dark);
+            color: var(--primary-dark);
             border: none;
-            padding: 12px 24px;
-            font-size: 0.9rem;
+            padding: 14px 28px;
+            font-size: 1rem;
             border-radius: 50px;
             cursor: pointer;
             margin: 10px auto;
@@ -768,6 +773,7 @@
             z-index: 2;
             display: none;
             animation: pulse 2s infinite;
+            border: 2px solid rgba(var(--gold-rgb), 0.8);
         }
         
         .install-btn::before {
@@ -787,6 +793,11 @@
                 0 6px 20px rgba(var(--gold-rgb), 0.4),
                 inset 0 0 16px rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
+            background: linear-gradient(
+                135deg,
+                rgba(var(--gold-rgb), 0.9),
+                rgba(var(--gold-rgb), 0.7)
+            );
         }
         
         .install-btn:hover::before {
@@ -801,10 +812,6 @@
         
         /* Адаптация для маленьких экранов */
         @media (max-width: 480px) {
-            body {
-                padding-top: 50px; /* Меньший отступ для мобильных */
-            }
-            
             .azkar-switcher {
                 height: 50px;
             }
@@ -824,7 +831,7 @@
             }
 
             .theme-switcher {
-                top: 10px;
+                top: calc(10px + env(safe-area-inset-top, 0px));
                 right: 10px;
                 gap: 5px;
                 padding: 6px;
@@ -882,6 +889,22 @@
             
             .azkar-text {
                 font-size: 1.4rem;
+            }
+        }
+
+        /* Стили для PWA на iOS */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                padding-top: env(safe-area-inset-top, 0px);
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+            
+            .container {
+                margin-top: calc(20px + env(safe-area-inset-top, 0px));
+            }
+            
+            .theme-switcher {
+                top: calc(10px + env(safe-area-inset-top, 0px));
             }
         }
     </style>
