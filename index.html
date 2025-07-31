@@ -725,6 +725,8 @@
                 <option value="grozny">Грозный</option>
                 <option value="novosibirsk">Новосибирск</option>
                 <option value="krasnoyarsk">Красноярск</option>
+                <option value="khasavyurt">Хасавюрт</option>
+                <option value="belidzhi">Белиджи</option>
             </select>
         </div>
         
@@ -901,22 +903,25 @@
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
             
-            // Координаты городов
+            // Координаты городов (добавлены Хасавюрт и Белиджи)
             const cities = {
-                'moscow': { lat: 55.7558, lng: 37.6176 },
-                'saint-petersburg': { lat: 59.9343, lng: 30.3351 },
-                'kazan': { lat: 55.7961, lng: 49.1064 },
-                'ufa': { lat: 54.7351, lng: 55.9587 },
-                'makhachkala': { lat: 42.9831, lng: 47.5047 },
-                'grozny': { lat: 43.3180, lng: 45.6982 },
-                'novosibirsk': { lat: 55.0084, lng: 82.9357 },
-                'krasnoyarsk': { lat: 56.0153, lng: 92.8932 }
+                'moscow': { lat: 55.7558, lng: 37.6176, method: 3 },
+                'saint-petersburg': { lat: 59.9343, lng: 30.3351, method: 3 },
+                'kazan': { lat: 55.7961, lng: 49.1064, method: 3 },
+                'ufa': { lat: 54.7351, lng: 55.9587, method: 3 },
+                'makhachkala': { lat: 42.9831, lng: 47.5047, method: 1 },
+                'grozny': { lat: 43.3180, lng: 45.6982, method: 1 },
+                'novosibirsk': { lat: 55.0084, lng: 82.9357, method: 3 },
+                'krasnoyarsk': { lat: 56.0153, lng: 92.8932, method: 3 },
+                'khasavyurt': { lat: 43.2509, lng: 46.5877, method: 1 }, // Хасавюрт
+                'belidzhi': { lat: 42.1333, lng: 48.0667, method: 1 }    // Белиджи
             };
             
-            const { lat, lng } = cities[city];
+            const { lat, lng, method } = cities[city];
             
             try {
-                const response = await fetch(`https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${lat}&longitude=${lng}&method=2`);
+                // Используем метод 1 (MWL) для Дагестана и метод 3 (Russia) для остальных
+                const response = await fetch(`https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${lat}&longitude=${lng}&method=${method}&tune=0,0,0,0,0,0,0,0,0`);
                 const data = await response.json();
                 
                 if (data.code === 200 && data.data) {
@@ -942,7 +947,7 @@
             return timeStr.split(' ')[0];
         }
 
-        // Резервные времена намаза
+        // Резервные времена намаза (добавлены Хасавюрт и Белиджи)
         function getFallbackTimes(city) {
             const times = {
                 'moscow': {
@@ -1008,6 +1013,22 @@
                     asr: '17:15',
                     maghrib: '21:00',
                     isha: '23:15'
+                },
+                'khasavyurt': {
+                    fajr: '03:20',
+                    sunrise: '05:15',
+                    dhuhr: '12:10',
+                    asr: '15:40',
+                    maghrib: '19:05',
+                    isha: '20:50'
+                },
+                'belidzhi': {
+                    fajr: '03:15',
+                    sunrise: '05:10',
+                    dhuhr: '12:05',
+                    asr: '15:35',
+                    maghrib: '19:00',
+                    isha: '20:45'
                 }
             };
             return times[city] || times['moscow'];
