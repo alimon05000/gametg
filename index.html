@@ -93,6 +93,39 @@
             --theme-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54 50.41c-3.37 0-6.13-2.76-6.13-6.13 0-3.37 2.76-6.13 6.13-6.13h4.38v-2.5H54c-4.76 0-8.63 3.87-8.63 8.63 0 4.76 3.87 8.63 8.63 8.63h4.38v-2.5H54zM.11 50.41c3.37 0 6.13-2.76 6.13-6.13 0-3.37-2.76-6.13-6.13-6.13H-.28v-2.5h.39c4.76 0 8.63 3.87 8.63 8.63 0 4.76-3.87 8.63-8.63 8.63H-.28v-2.5h.39zm48.27-24.78c-3.37 0-6.13-2.76-6.13-6.13 0-3.37 2.76-6.13 6.13-6.13h4.38v-2.5h-4.38c-4.76 0-8.63 3.87-8.63 8.63 0 4.76 3.87 8.63 8.63 8.63h4.38v-2.5h-4.38zM6.24 25.63c3.37 0 6.13-2.76 6.13-6.13 0-3.37-2.76-6.13-6.13-6.13H1.86v-2.5h4.38c4.76 0 8.63 3.87 8.63 8.63 0 4.76-3.87 8.63-8.63 8.63H1.86v-2.5h4.38z' fill='%238f6a1a' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
         }
         
+        /* Новые темы для компаса */
+        .compass-theme-emerald {
+            --compass-bg: rgba(13, 94, 63, 0.1);
+            --compass-border: #0d5e3f;
+            --compass-arrow: #c9a769;
+            --compass-needle: #e74c3c;
+            --compass-text: #f0e6d2;
+        }
+        
+        .compass-theme-sapphire {
+            --compass-bg: rgba(26, 58, 143, 0.1);
+            --compass-border: #1a3a8f;
+            --compass-arrow: #8a9eff;
+            --compass-needle: #e74c3c;
+            --compass-text: #e0e7ff;
+        }
+        
+        .compass-theme-burgundy {
+            --compass-bg: rgba(110, 29, 69, 0.1);
+            --compass-border: #6e1d45;
+            --compass-arrow: #d48a9e;
+            --compass-needle: #e74c3c;
+            --compass-text: #ffd6e7;
+        }
+        
+        .compass-theme-amber {
+            --compass-bg: rgba(143, 106, 26, 0.1);
+            --compass-border: #8f6a1a;
+            --compass-arrow: #ffc96b;
+            --compass-needle: #e74c3c;
+            --compass-text: #fff4e0;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -821,9 +854,10 @@
             margin: 0 auto;
             position: relative;
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.2);
-            border: 2px solid var(--gold-color);
+            background: var(--compass-bg, rgba(0, 0, 0, 0.2));
+            border: 2px solid var(--compass-border, var(--gold-color));
             box-shadow: 0 0 20px rgba(var(--gold-rgb), 0.3);
+            transition: all 0.3s ease;
         }
 
         .compass-face {
@@ -857,7 +891,7 @@
             width: 80%;
             height: 80%;
             transform: translate(-50%, -50%);
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="5" fill="%23ff0000"/><path d="M50 10 L52 45 L48 45 Z" fill="%23ff0000"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="5" fill="%23e74c3c"/><path d="M50 10 L52 45 L48 45 Z" fill="%23e74c3c"/></svg>');
             background-size: contain;
             background-repeat: no-repeat;
         }
@@ -1609,8 +1643,39 @@
                 
                 // Сохраняем тему в localStorage
                 localStorage.setItem('selectedTheme', themeClass);
+                
+                // Обновляем тему компаса
+                updateCompassTheme(themeClass);
             });
         });
+        
+        // Обновление темы компаса
+        function updateCompassTheme(themeClass) {
+            const compass = document.querySelector('.qibla-compass');
+            
+            // Удаляем все классы тем компаса
+            compass.classList.remove(
+                'compass-theme-emerald',
+                'compass-theme-sapphire',
+                'compass-theme-burgundy',
+                'compass-theme-amber'
+            );
+            
+            // Добавляем соответствующий класс темы компаса
+            switch(themeClass) {
+                case 'theme-sapphire':
+                    compass.classList.add('compass-theme-sapphire');
+                    break;
+                case 'theme-burgundy':
+                    compass.classList.add('compass-theme-burgundy');
+                    break;
+                case 'theme-amber':
+                    compass.classList.add('compass-theme-amber');
+                    break;
+                default:
+                    compass.classList.add('compass-theme-emerald');
+            }
+        }
 
         // Проверка возможностей браузера
         function checkBrowserCapabilities() {
@@ -1830,6 +1895,8 @@
         let usingGPS = false;
         let watchId = null;
         let compassPermissionGranted = false;
+        let lastHeading = 0;
+        let lastAccuracy = 0;
 
         // Координаты Каабы
         const kaabaLat = 21.4225;
@@ -1892,11 +1959,23 @@
             if (!compassPermissionGranted) return;
             
             // Получаем данные компаса (в градусах относительно севера)
-            const compassHeading = event.alpha; // 0-360 градусов
+            let compassHeading = event.alpha; // 0-360 градусов
+            
+            // Для iOS - используем absolute orientation
+            if (event.webkitCompassHeading !== undefined) {
+                compassHeading = event.webkitCompassHeading;
+            }
             
             if (compassHeading !== null) {
+                // Фильтруем шум и резкие изменения
+                const alpha = 0.15; // Коэффициент фильтрации (0-1)
+                const filteredHeading = lastHeading * (1 - alpha) + compassHeading * alpha;
+                
+                // Сохраняем текущее значение для следующего вызова
+                lastHeading = filteredHeading;
+                
                 // Поворачиваем циферблат компаса в противоположном направлении
-                document.getElementById('compass-face').style.transform = `rotate(${-compassHeading}deg)`;
+                document.getElementById('compass-face').style.transform = `rotate(${-filteredHeading}deg)`;
                 
                 // Обновляем стрелку направления на Каабу с учетом ориентации устройства
                 const qiblaArrow = document.getElementById('qibla-arrow');
@@ -1923,7 +2002,13 @@
                 compassPermissionGranted = true;
                 
                 // Добавляем обработчик ориентации
-                window.addEventListener('deviceorientation', handleOrientation, true);
+                if (window.DeviceOrientationEvent) {
+                    if ('ondeviceorientationabsolute' in window) {
+                        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+                    } else if ('ondeviceorientation' in window) {
+                        window.addEventListener('deviceorientation', handleOrientation, true);
+                    }
+                }
                 
                 return true;
             } catch (error) {
@@ -1934,6 +2019,7 @@
 
         function stopCompass() {
             window.removeEventListener('deviceorientation', handleOrientation, true);
+            window.removeEventListener('deviceorientationabsolute', handleOrientation, true);
             document.getElementById('compass-face').style.transform = 'rotate(0deg)';
             compassPermissionGranted = false;
         }
@@ -1947,10 +2033,19 @@
                 (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    
+                    // Фильтруем неточные данные
+                    if (accuracy > 100) {
+                        document.getElementById('location-status').textContent = 
+                            `Низкая точность GPS (${accuracy.toFixed(0)}м). Держите устройство ровно.`;
+                        return;
+                    }
+                    
                     currentQiblaAngle = calculateQiblaDirection(lat, lng);
                     updateCompassDisplay();
                     document.getElementById('location-status').textContent = 
-                        `Используется GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                        `Используется GPS (точность: ${accuracy.toFixed(0)}м)`;
                 },
                 (error) => {
                     console.error('Ошибка геолокации:', error);
@@ -1968,7 +2063,7 @@
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 5000,
+                    timeout: 10000,
                     maximumAge: 0
                 }
             );
@@ -2029,6 +2124,7 @@
             if (savedTheme) {
                 document.body.classList.add(savedTheme);
                 document.querySelector(`.theme-btn[data-theme-class="${savedTheme}"]`).classList.add('active');
+                updateCompassTheme(savedTheme);
             }
             
             // Инициализируем слайдер
