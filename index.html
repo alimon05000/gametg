@@ -847,6 +847,19 @@
             background-size: contain;
             background-repeat: no-repeat;
             filter: drop-shadow(0 0 5px rgba(201, 167, 105, 0.7));
+            transition: transform 0.1s ease;
+        }
+
+        .compass-needle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80%;
+            height: 80%;
+            transform: translate(-50%, -50%);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="5" fill="%23ff0000"/><path d="M50 10 L52 45 L48 45 Z" fill="%23ff0000"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
         }
 
         .qibla-info {
@@ -858,6 +871,41 @@
         .qibla-degree {
             font-weight: bold;
             color: var(--gold-color);
+        }
+
+        .location-status {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .compass-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .compass-btn {
+            background: rgba(var(--gold-rgb), 0.15);
+            color: var(--gold-color);
+            border: 1px solid rgba(var(--gold-rgb), 0.3);
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .compass-btn:hover {
+            background: rgba(var(--gold-rgb), 0.25);
+        }
+
+        .compass-btn.active {
+            background: rgba(var(--current-prayer-rgb), 0.2);
+            border-color: rgba(var(--current-prayer-rgb), 0.3);
+            color: #fff;
         }
         
         /* Адаптация для маленьких экранов */
@@ -905,6 +953,11 @@
             .qibla-compass {
                 width: 150px;
                 height: 150px;
+            }
+
+            .compass-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
             }
         }
         
@@ -1043,12 +1096,18 @@
         <!-- Компас направления Каабы -->
         <div class="qibla-container">
             <div class="qibla-compass">
-                <div class="compass-face">
+                <div class="compass-face" id="compass-face">
                     <div class="compass-arrow" id="qibla-arrow"></div>
+                    <div class="compass-needle" id="compass-needle"></div>
                 </div>
             </div>
             <div class="qibla-info">
                 Направление на Каабу: <span class="qibla-degree" id="qibla-degree">--°</span>
+                <div class="location-status" id="location-status">Используется выбранный город</div>
+            </div>
+            <div class="compass-controls">
+                <button class="compass-btn" id="use-gps-btn">Использовать GPS</button>
+                <button class="compass-btn" id="use-city-btn" disabled>Использовать город</button>
             </div>
         </div>
         
@@ -1349,8 +1408,10 @@
                 setupPrayerNotifications(city);
             }
             
-            // Обновляем направление Каабы
-            updateQiblaDirection(city);
+            // Обновляем направление Каабы, если используется город
+            if (!window.usingGPS) {
+                updateQiblaDirection(city);
+            }
         }
 
         // Определение текущего намаза
@@ -1765,29 +1826,32 @@
         });
 
         // Направление на Каабу
-        function updateQiblaDirection(city) {
-            // Координаты Каабы
-            const kaabaLat = 21.4225;
-            const kaabaLng = 39.8262;
-            
-            // Координаты городов
-            const cities = {
-                'moscow': { lat: 55.7558, lng: 37.6176 },
-                'saint-petersburg': { lat: 59.9343, lng: 30.3351 },
-                'kazan': { lat: 55.7961, lng: 49.1064 },
-                'ufa': { lat: 54.7351, lng: 55.9587 },
-                'makhachkala': { lat: 42.9831, lng: 47.5047 },
-                'grozny': { lat: 43.3180, lng: 45.6982 },
-                'novosibirsk': { lat: 55.0084, lng: 82.9357 },
-                'krasnoyarsk': { lat: 56.0153, lng: 92.8932 },
-                'khasavyurt': { lat: 43.2509, lng: 46.5877 },
-                'belidzhi': { lat: 42.1333, lng: 48.0667 },
-                'ahty': { lat: 41.4647, lng: 47.7408 },
-                'kabir': { lat: 41.5667, lng: 47.8333 }
-            };
-            
-            const { lat, lng } = cities[city] || cities['moscow'];
-            
+        let currentQiblaAngle = 0;
+        let usingGPS = false;
+        let watchId = null;
+        let compassPermissionGranted = false;
+
+        // Координаты Каабы
+        const kaabaLat = 21.4225;
+        const kaabaLng = 39.8262;
+
+        // Координаты городов
+        const cities = {
+            'moscow': { lat: 55.7558, lng: 37.6176 },
+            'saint-petersburg': { lat: 59.9343, lng: 30.3351 },
+            'kazan': { lat: 55.7961, lng: 49.1064 },
+            'ufa': { lat: 54.7351, lng: 55.9587 },
+            'makhachkala': { lat: 42.9831, lng: 47.5047 },
+            'grozny': { lat: 43.3180, lng: 45.6982 },
+            'novosibirsk': { lat: 55.0084, lng: 82.9357 },
+            'krasnoyarsk': { lat: 56.0153, lng: 92.8932 },
+            'khasavyurt': { lat: 43.2509, lng: 46.5877 },
+            'belidzhi': { lat: 42.1333, lng: 48.0667 },
+            'ahty': { lat: 41.4647, lng: 47.7408 },
+            'kabir': { lat: 41.5667, lng: 47.8333 }
+        };
+
+        function calculateQiblaDirection(lat, lng) {
             // Рассчитываем угол направления на Каабу
             const phiK = kaabaLat * Math.PI / 180.0;
             const lambdaK = kaabaLng * Math.PI / 180.0;
@@ -1799,22 +1863,152 @@
                 Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda)
             );
             
-            const qiblaAngle = (psi + 360.0) % 360.0;
-            
-            // Обновляем компас
-            document.getElementById('qibla-arrow').style.transform = `translate(-50%, -50%) rotate(${qiblaAngle}deg)`;
-            document.getElementById('qibla-degree').textContent = `${Math.round(qiblaAngle)}°`;
+            return (psi + 360.0) % 360.0;
+        }
+
+        function updateQiblaDirection(city) {
+            const { lat, lng } = cities[city] || cities['moscow'];
+            currentQiblaAngle = calculateQiblaDirection(lat, lng);
+            updateCompassDisplay();
+            document.getElementById('location-status').textContent = 'Используется выбранный город';
+        }
+
+        function updateCompassDisplay() {
+            document.getElementById('qibla-arrow').style.transform = `translate(-50%, -50%) rotate(${currentQiblaAngle}deg)`;
+            document.getElementById('qibla-degree').textContent = `${Math.round(currentQiblaAngle)}°`;
             
             // Сохраняем угол для использования в service worker
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.ready.then(reg => {
                     reg.active.postMessage({
                         type: 'SET_QIBLA_ANGLE',
-                        angle: qiblaAngle
+                        angle: currentQiblaAngle
                     });
                 });
             }
         }
+
+        function handleOrientation(event) {
+            if (!compassPermissionGranted) return;
+            
+            // Получаем данные компаса (в градусах относительно севера)
+            const compassHeading = event.alpha; // 0-360 градусов
+            
+            if (compassHeading !== null) {
+                // Поворачиваем циферблат компаса в противоположном направлении
+                document.getElementById('compass-face').style.transform = `rotate(${-compassHeading}deg)`;
+                
+                // Обновляем стрелку направления на Каабу с учетом ориентации устройства
+                const qiblaArrow = document.getElementById('qibla-arrow');
+                qiblaArrow.style.transform = `translate(-50%, -50%) rotate(${currentQiblaAngle}deg)`;
+                
+                // Обновляем стрелку севера
+                const compassNeedle = document.getElementById('compass-needle');
+                compassNeedle.style.transform = `translate(-50%, -50%) rotate(${0}deg)`;
+            }
+        }
+
+        async function startCompass() {
+            try {
+                // Запрашиваем разрешение на доступ к датчикам (для iOS 13+)
+                if (typeof DeviceOrientationEvent !== 'undefined' && 
+                    typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    const permission = await DeviceOrientationEvent.requestPermission();
+                    if (permission !== 'granted') {
+                        alert('Для работы компаса необходимо разрешение на доступ к датчикам устройства.');
+                        return false;
+                    }
+                }
+                
+                compassPermissionGranted = true;
+                
+                // Добавляем обработчик ориентации
+                window.addEventListener('deviceorientation', handleOrientation, true);
+                
+                return true;
+            } catch (error) {
+                console.error('Ошибка при запуске компаса:', error);
+                return false;
+            }
+        }
+
+        function stopCompass() {
+            window.removeEventListener('deviceorientation', handleOrientation, true);
+            document.getElementById('compass-face').style.transform = 'rotate(0deg)';
+            compassPermissionGranted = false;
+        }
+
+        function startGPS() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+            
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    currentQiblaAngle = calculateQiblaDirection(lat, lng);
+                    updateCompassDisplay();
+                    document.getElementById('location-status').textContent = 
+                        `Используется GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                },
+                (error) => {
+                    console.error('Ошибка геолокации:', error);
+                    document.getElementById('location-status').textContent = 
+                        'Ошибка GPS. Используется выбранный город';
+                    
+                    // Возвращаемся к использованию города
+                    const city = document.getElementById('city-select').value;
+                    if (city) {
+                        updateQiblaDirection(city);
+                    }
+                    usingGPS = false;
+                    document.getElementById('use-gps-btn').disabled = false;
+                    document.getElementById('use-city-btn').disabled = true;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        function stopGPS() {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+        }
+
+        document.getElementById('use-gps-btn').addEventListener('click', async () => {
+            if (!navigator.geolocation) {
+                alert('Геолокация не поддерживается вашим браузером');
+                return;
+            }
+            
+            const compassStarted = await startCompass();
+            if (!compassStarted) return;
+            
+            startGPS();
+            usingGPS = true;
+            document.getElementById('use-gps-btn').disabled = true;
+            document.getElementById('use-city-btn').disabled = false;
+            document.getElementById('location-status').textContent = 'Определение местоположения...';
+        });
+
+        document.getElementById('use-city-btn').addEventListener('click', () => {
+            stopCompass();
+            stopGPS();
+            usingGPS = false;
+            document.getElementById('use-gps-btn').disabled = false;
+            document.getElementById('use-city-btn').disabled = true;
+            
+            const city = document.getElementById('city-select').value;
+            if (city) {
+                updateQiblaDirection(city);
+            }
+        });
 
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
