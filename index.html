@@ -751,29 +751,25 @@
         }
         
         .install-btn {
-            background: linear-gradient(
-                135deg,
-                rgba(var(--gold-rgb), 0.8),
-                rgba(var(--gold-rgb), 0.6)
-            );
-            color: var(--primary-dark);
-            border: none;
-            padding: 14px 28px;
+            background: rgba(var(--gold-rgb), 0.15);
+            color: var(--gold-color);
+            border: 1px solid rgba(var(--gold-rgb), 0.3);
+            padding: 14px 32px;
             font-size: 1rem;
             border-radius: 50px;
             cursor: pointer;
-            margin: 10px auto;
+            margin: 20px 0;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: 
-                0 4px 20px rgba(var(--gold-rgb), 0.3),
-                inset 0 0 12px rgba(255, 255, 255, 0.2);
-            font-weight: bold;
+                0 4px 20px rgba(0, 0, 0, 0.15),
+                inset 0 0 12px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
+            font-weight: bold;
             z-index: 2;
             display: none;
             animation: pulse 2s infinite;
-            border: 2px solid rgba(var(--gold-rgb), 0.8);
         }
         
         .install-btn::before {
@@ -789,15 +785,11 @@
         }
         
         .install-btn:hover {
+            background: rgba(var(--gold-rgb), 0.25);
             box-shadow: 
-                0 6px 20px rgba(var(--gold-rgb), 0.4),
-                inset 0 0 16px rgba(255, 255, 255, 0.3);
+                0 6px 20px rgba(var(--gold-rgb), 0.2),
+                inset 0 0 16px rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
-            background: linear-gradient(
-                135deg,
-                rgba(var(--gold-rgb), 0.9),
-                rgba(var(--gold-rgb), 0.7)
-            );
         }
         
         .install-btn:hover::before {
@@ -808,6 +800,64 @@
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
+        }
+
+        /* Стили для компаса Каабы */
+        .qibla-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(var(--primary-dark-rgb), 0.3);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .qibla-compass {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid var(--gold-color);
+            box-shadow: 0 0 20px rgba(var(--gold-rgb), 0.3);
+        }
+
+        .compass-face {
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="%23c9a769" stroke-width="1"/><path d="M50 10 L52 20 L48 20 Z" fill="%23c9a769"/><text x="50" y="25" text-anchor="middle" fill="%23c9a769" font-size="8">N</text><path d="M50 90 L52 80 L48 80 Z" fill="%23c9a769"/><text x="50" y="85" text-anchor="middle" fill="%23c9a769" font-size="8">S</text><path d="M10 50 L20 52 L20 48 Z" fill="%23c9a769"/><text x="15" y="55" text-anchor="middle" fill="%23c9a769" font-size="8">W</text><path d="M90 50 L80 52 L80 48 Z" fill="%23c9a769"/><text x="85" y="55" text-anchor="middle" fill="%23c9a769" font-size="8">E</text></svg>');
+            background-size: contain;
+            position: relative;
+            border-radius: 50%;
+            transition: transform 0.5s ease;
+        }
+
+        .compass-arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60%;
+            height: 60%;
+            transform: translate(-50%, -50%);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10 L60 90 L50 70 L40 90 Z" fill="%23c9a769"/><circle cx="50" cy="50" r="10" fill="%230d5e3f"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            filter: drop-shadow(0 0 5px rgba(201, 167, 105, 0.7));
+        }
+
+        .qibla-info {
+            margin-top: 15px;
+            font-size: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .qibla-degree {
+            font-weight: bold;
+            color: var(--gold-color);
         }
         
         /* Адаптация для маленьких экранов */
@@ -850,6 +900,11 @@
             
             .theme-btn:hover::after {
                 bottom: -40px;
+            }
+
+            .qibla-compass {
+                width: 150px;
+                height: 150px;
             }
         }
         
@@ -985,6 +1040,18 @@
             <span class="next-prayer-time" id="next-prayer-time">--:--:--</span>
         </div>
         
+        <!-- Компас направления Каабы -->
+        <div class="qibla-container">
+            <div class="qibla-compass">
+                <div class="compass-face">
+                    <div class="compass-arrow" id="qibla-arrow"></div>
+                </div>
+            </div>
+            <div class="qibla-info">
+                Направление на Каабу: <span class="qibla-degree" id="qibla-degree">--°</span>
+            </div>
+        </div>
+        
         <!-- Переключатель азкаров -->
         <div class="azkar-switcher" id="azkar-switcher">
             <div class="azkar-slider" id="azkar-slider"></div>
@@ -997,7 +1064,7 @@
         <div class="azkar-container active" id="morning-azkar">
             <!-- Утренние азкары -->
             <div class="azkar-item">
-                <div class="azkar-text">أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْיَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div>
+                <div class="azkar-text">أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ</div>
                 <div class="azkar-translation">"Мы проснулись, и власть принадлежит Аллаху, и хвала Аллаху. Нет божества, кроме одного лишь Аллаха, у Которого нет сотоварища. Ему принадлежит власть, и Ему хвала, и Он над всякой вещью мощен. Господь, я прошу у Тебя блага этого дня и блага того, что после него, и прибегаю к Тебе от зла этого дня и зла того, что после него. Господь, я прибегаю к Тебе от лени и дряхлости в старости. Господь, я прибегаю к Тебе от мучений в Огне и мучений в могиле".</div>
                 <div class="azkar-reference">Муслим 2723</div>
             </div>
@@ -1281,6 +1348,9 @@
             if (Notification.permission === 'granted') {
                 setupPrayerNotifications(city);
             }
+            
+            // Обновляем направление Каабы
+            updateQiblaDirection(city);
         }
 
         // Определение текущего намаза
@@ -1694,6 +1764,58 @@
             await handleNotificationPermission();
         });
 
+        // Направление на Каабу
+        function updateQiblaDirection(city) {
+            // Координаты Каабы
+            const kaabaLat = 21.4225;
+            const kaabaLng = 39.8262;
+            
+            // Координаты городов
+            const cities = {
+                'moscow': { lat: 55.7558, lng: 37.6176 },
+                'saint-petersburg': { lat: 59.9343, lng: 30.3351 },
+                'kazan': { lat: 55.7961, lng: 49.1064 },
+                'ufa': { lat: 54.7351, lng: 55.9587 },
+                'makhachkala': { lat: 42.9831, lng: 47.5047 },
+                'grozny': { lat: 43.3180, lng: 45.6982 },
+                'novosibirsk': { lat: 55.0084, lng: 82.9357 },
+                'krasnoyarsk': { lat: 56.0153, lng: 92.8932 },
+                'khasavyurt': { lat: 43.2509, lng: 46.5877 },
+                'belidzhi': { lat: 42.1333, lng: 48.0667 },
+                'ahty': { lat: 41.4647, lng: 47.7408 },
+                'kabir': { lat: 41.5667, lng: 47.8333 }
+            };
+            
+            const { lat, lng } = cities[city] || cities['moscow'];
+            
+            // Рассчитываем угол направления на Каабу
+            const phiK = kaabaLat * Math.PI / 180.0;
+            const lambdaK = kaabaLng * Math.PI / 180.0;
+            const phi = lat * Math.PI / 180.0;
+            const lambda = lng * Math.PI / 180.0;
+            
+            const psi = 180.0 / Math.PI * Math.atan2(
+                Math.sin(lambdaK - lambda),
+                Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda)
+            );
+            
+            const qiblaAngle = (psi + 360.0) % 360.0;
+            
+            // Обновляем компас
+            document.getElementById('qibla-arrow').style.transform = `translate(-50%, -50%) rotate(${qiblaAngle}deg)`;
+            document.getElementById('qibla-degree').textContent = `${Math.round(qiblaAngle)}°`;
+            
+            // Сохраняем угол для использования в service worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(reg => {
+                    reg.active.postMessage({
+                        type: 'SET_QIBLA_ANGLE',
+                        angle: qiblaAngle
+                    });
+                });
+            }
+        }
+
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             // Восстанавливаем выбранный город сразу после загрузки DOM
@@ -1781,7 +1903,7 @@
     <!-- Service Worker Script (inline for demo purposes) -->
     <script id="sw-script" type="text/javascript">
         // Этот код будет использоваться для создания файла sw.js
-        const CACHE_NAME = 'prayer-times-v2';
+        const CACHE_NAME = 'prayer-times-v3';
         const ASSETS_TO_CACHE = [
             '/',
             '/index.html',
@@ -1837,6 +1959,7 @@
         });
 
         let prayerTimes = {};
+        let qiblaAngle = 0;
 
         self.addEventListener('message', (event) => {
             if (event.data.type === 'SET_PRAYER_TIMES') {
@@ -1845,6 +1968,11 @@
                     city: event.data.city
                 };
                 console.log('Prayer times saved in Service Worker');
+            }
+            
+            if (event.data.type === 'SET_QIBLA_ANGLE') {
+                qiblaAngle = event.data.angle;
+                console.log('Qibla angle saved in Service Worker:', qiblaAngle);
             }
         });
 
