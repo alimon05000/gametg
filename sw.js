@@ -1,7 +1,8 @@
-const CACHE_NAME = 'prayer-times-v2';
+const CACHE_NAME = 'prayer-times-v3';
 const ASSETS_TO_CACHE = [
-  '/index.html',
-  '/manifest.json',
+  './',
+  './index.html',
+  './manifest.json',
   'https://fonts.googleapis.com/css2?family=Amiri:wght@700&display=swap',
   'https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap',
   'https://img.icons8.com/ios/512/islamic/prayer.png',
@@ -38,18 +39,17 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Для навигационных запросов - особенная обработка
+  // Для GitHub Pages - особенная обработка
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .catch(() => {
-          return caches.match('/index.html');
+          return caches.match('./index.html');
         })
     );
     return;
   }
 
-  // Для остальных запросов
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -70,36 +70,6 @@ self.addEventListener('message', (event) => {
     console.log('Prayer times updated in Service Worker');
   }
 });
-
-self.addEventListener('periodicsync', (event) => {
-  if (event.tag === 'prayer-times') {
-    event.waitUntil(checkPrayerTimes());
-  }
-});
-
-function checkPrayerTimes() {
-  if (!prayerTimes.times) {
-    console.log('No prayer times data available');
-    return;
-  }
-  
-  const now = new Date();
-  const currentTime = now.getHours() * 60 + now.getMinutes();
-  
-  for (const [prayer, time] of Object.entries(prayerTimes.times)) {
-    if (prayer === 'sunrise') continue;
-    
-    const [hours, minutes] = time.split(':').map(Number);
-    const prayerTime = hours * 60 + minutes;
-    let diff = prayerTime - currentTime;
-    
-    if (diff < 0) diff += 1440;
-    
-    if (diff <= 5) {
-      showNotification(prayer);
-    }
-  }
-}
 
 function showNotification(prayer) {
   const prayerNames = {
@@ -127,7 +97,7 @@ self.addEventListener('notificationclick', (event) => {
         if (clientList.length > 0) {
           return clientList[0].focus();
         }
-        return clients.openWindow('/index.html');
+        return clients.openWindow('./');
       })
   );
 });
