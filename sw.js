@@ -1,29 +1,60 @@
-// sw.js
-const CACHE_NAME = 'prayer-times-v1';
+const CACHE_NAME = 'prayer-times-v2';
 const ASSETS_TO_CACHE = [
-  '/',
   '/index.html',
-  '/styles.css',
-  '/script.js',
-  'https://img.icons8.com/ios/512/islamic/prayer.png'
+  '/manifest.json',
+  'https://fonts.googleapis.com/css2?family=Amiri:wght@700&display=swap',
+  'https://fonts.googleapis.com/css2?family=Scheherazade+New&display=swap',
+  'https://img.icons8.com/ios/512/islamic/prayer.png',
+  'https://www.islamcan.com/audio/adhan/fajr.mp3',
+  'https://www.islamcan.com/audio/adhan/standard.mp3'
 ];
 
 self.addEventListener('install', (event) => {
+  console.log('Service Worker: Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(ASSETS_TO_CACHE))
+      .then((cache) => {
+        console.log('Caching app shell');
+        return cache.addAll(ASSETS_TO_CACHE);
+      })
       .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  console.log('Service Worker: Activating...');
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            console.log('Deleting old cache:', cache);
+            return caches.delete(cache);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', (event) => {
+  // Для навигационных запросов - особенная обработка
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          return caches.match('/index.html');
+        })
+    );
+    return;
+  }
+
+  // Для остальных запросов
   event.respondWith(
     caches.match(event.request)
-      .then((response) => response || fetch(event.request))
+      .then((response) => {
+        return response || fetch(event.request);
+      })
   );
 });
 
@@ -33,8 +64,10 @@ self.addEventListener('message', (event) => {
   if (event.data.type === 'SET_PRAYER_TIMES') {
     prayerTimes = {
       times: event.data.times,
-      city: event.data.city
+      city: event.data.city,
+      timestamp: Date.now()
     };
+    console.log('Prayer times updated in Service Worker');
   }
 });
 
@@ -45,7 +78,10 @@ self.addEventListener('periodicsync', (event) => {
 });
 
 function checkPrayerTimes() {
-  if (!prayerTimes.times) return;
+  if (!prayerTimes.times) {
+    console.log('No prayer times data available');
+    return;
+  }
   
   const now = new Date();
   const currentTime = now.getHours() * 60 + now.getMinutes();
@@ -75,10 +111,10 @@ function showNotification(prayer) {
   };
   
   self.registration.showNotification('Время намаза', {
-    body: `Наступило время намаза ${prayerNames[prayer]}`,
+    body: `Скоро время намаза ${prayerNames[prayer]}`,
     icon: 'https://img.icons8.com/ios/512/islamic/prayer.png',
     vibrate: [200, 100, 200, 100, 200],
-    tag: `prayer-${prayer}-${Date.now()}`,
+    tag: `prayer-${prayer}`,
     data: { prayer: prayer }
   });
 }
@@ -88,9 +124,10 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window' })
       .then((clientList) => {
-        if (clients.openWindow) {
-          return clients.openWindow('/');
+        if (clientList.length > 0) {
+          return clientList[0].focus();
         }
+        return clients.openWindow('/index.html');
       })
   );
 });
