@@ -2,7 +2,7 @@
   "name": "Намаз",
   "short_name": "Намаз",
   "description": "Точные времена намаза с утренними и вечерними азкарами",
-  "start_url": "/index.html",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#051a12",
   "theme_color": "#0d5e3f",
